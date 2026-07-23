@@ -1,0 +1,543 @@
+/* ==========================================================================
+   LIGHTNING FAST & ULTRA-RESPONSIVE NETFLIX INTRO ANIMATION - STYLESHEET
+   ========================================================================== */
+
+/* ---------- Tokens & Global Reset ---------- */
+:root {
+    --netflix-red: #E50914;
+    --netflix-red-dark: #B81D24;
+    --netflix-red-bright: #FF1E27;
+    --bg-black: #000000;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-black);
+    font-family: var(--font-family);
+    color: #FFFFFF;
+}
+
+.hidden {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* ==========================================================================
+   1. START OVERLAY
+   ========================================================================== */
+.start-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at center, #1b0204 0%, #000000 100%);
+    backdrop-filter: blur(16px);
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    cursor: pointer;
+}
+
+.start-card {
+    text-align: center;
+    padding: 40px 45px;
+    background: rgba(15, 15, 15, 0.85);
+    border: 1px solid rgba(229, 9, 20, 0.3);
+    border-radius: 14px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 40px rgba(229, 9, 20, 0.25);
+    max-width: 420px;
+    width: 90%;
+}
+
+.mini-n-svg {
+    width: 55px;
+    height: 80px;
+    margin: 0 auto 20px;
+    filter: drop-shadow(0 0 15px rgba(229, 9, 20, 0.75));
+}
+
+.start-card h1 {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: var(--netflix-red);
+    margin-bottom: 8px;
+}
+
+.start-card p {
+    font-size: 14px;
+    color: #A0A0A0;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.btn-play {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--netflix-red);
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 13px 30px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.2s ease;
+    box-shadow: 0 4px 20px rgba(229, 9, 20, 0.5);
+    will-change: transform;
+}
+
+.btn-play:hover {
+    background: var(--netflix-red-bright);
+    transform: scale(1.05);
+}
+
+/* ==========================================================================
+   2. MAIN INTRO CONTAINER (PUNCHY 1.2S TOTAL DURATION)
+   ========================================================================== */
+.netflix-intro {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-color: var(--bg-black);
+    perspective: 1200px;
+    z-index: 10;
+    transition: opacity 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: opacity;
+}
+
+/* Ambient Backlight Glow */
+.glow-container {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.red-ambient-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 800px;
+    height: 800px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(229, 9, 20, 0.45) 0%, rgba(184, 29, 36, 0.15) 45%, rgba(0,0,0,0) 70%);
+    transform: translate3d(-50%, -50%, 0) scale(0.8);
+    filter: blur(80px);
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+.netflix-intro.animating .red-ambient-glow {
+    animation: ambientGlowPulse 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.red-core-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 450px;
+    height: 450px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 30, 39, 0.65) 0%, rgba(0,0,0,0) 70%);
+    transform: translate3d(-50%, -50%, 0);
+    filter: blur(50px);
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+.netflix-intro.animating .red-core-glow {
+    animation: coreGlowPulse 1.4s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+}
+
+/* Canvas Layer for Vertical Light Spectrum */
+#spectrum-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.netflix-intro.zooming #spectrum-canvas {
+    opacity: 1;
+}
+
+/* ==========================================================================
+   3. PRECISION SVG 'N' LOGO (LIGHTNING FAST REVEAL & ZOOM)
+   ========================================================================== */
+.netflix-logo-box {
+    position: relative;
+    width: 200px;
+    height: 310px;
+    z-index: 5;
+    transform-style: preserve-3d;
+    filter: drop-shadow(0 20px 50px rgba(0, 0, 0, 0.95));
+    will-change: transform, opacity;
+}
+
+.n-logo-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+/* SVG Path Animation Setup */
+.svg-leg {
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+.svg-left {
+    transform-origin: 29px 280px;
+    transform: scale3d(1, 0, 1);
+}
+
+.svg-right {
+    transform-origin: 151px 280px;
+    transform: scale3d(1, 0, 1);
+}
+
+.svg-center {
+    transform-origin: 29px 0px;
+    transform: scale3d(1, 0, 1);
+}
+
+/* Lightning Fast 0.5s Ribbon Draw */
+.netflix-intro.animating .svg-left {
+    animation: revealSvgLeg 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.netflix-intro.animating .svg-right {
+    animation: revealSvgLeg 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
+}
+
+.netflix-intro.animating .svg-center {
+    animation: revealSvgLeg 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.12s forwards;
+}
+
+/* Ultra-Fast 0.55s Camera Zoom Pass-Through */
+.netflix-intro.zooming .netflix-logo-box {
+    animation: cameraZoomPassThrough 0.55s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+
+/* ==========================================================================
+   4. FLOATING CONTROLS
+   ========================================================================== */
+.intro-controls {
+    position: fixed;
+    bottom: 25px;
+    right: 30px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
+}
+
+.intro-controls:hover {
+    opacity: 1;
+}
+
+.control-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(20, 20, 20, 0.75);
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: all 0.2s ease;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px);
+}
+
+.skip-pill {
+    background: rgba(229, 9, 20, 0.45);
+    border-color: rgba(229, 9, 20, 0.75);
+}
+
+.skip-pill:hover {
+    background: var(--netflix-red);
+}
+
+/* ==========================================================================
+   5. POST-INTRO NETFLIX UI
+   ========================================================================== */
+.main-app {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background-color: #141414;
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    transition: opacity 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+    overflow-y: auto;
+}
+
+.netflix-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 60px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+}
+
+.nav-brand {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: var(--netflix-red);
+}
+
+.nav-menu {
+    display: flex;
+    gap: 24px;
+}
+
+.nav-menu a {
+    color: #E5E5E5;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.nav-menu a:hover, .nav-menu a.active {
+    color: #FFFFFF;
+    font-weight: 700;
+}
+
+.replay-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 7px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.replay-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Profiles Container */
+.profiles-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.whos-watching {
+    font-size: 56px;
+    font-weight: 500;
+    color: #FFFFFF;
+    margin-bottom: 45px;
+    letter-spacing: 1px;
+}
+
+.profile-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.profile-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.profile-card:hover {
+    transform: scale(1.08);
+}
+
+.profile-card:hover .avatar {
+    border: 3px solid #FFFFFF;
+}
+
+.profile-card:hover .name {
+    color: #FFFFFF;
+}
+
+.avatar {
+    width: 140px;
+    height: 140px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    font-weight: 800;
+    color: white;
+    overflow: hidden;
+    border: 3px solid transparent;
+    transition: border 0.25s ease;
+}
+
+.avatar-red { background: linear-gradient(135deg, #E50914, #800000); }
+.avatar-blue { background: linear-gradient(135deg, #1E88E5, #1565C0); }
+.avatar-yellow { background: #FFC107; color: #000 !important; font-size: 24px; font-weight: 900; }
+.avatar-add { background: transparent; border: 2px dashed #808080 !important; color: #808080; }
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.name {
+    color: #808080;
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+.manage-btn {
+    background: transparent;
+    color: #808080;
+    border: 1px solid #808080;
+    padding: 10px 30px;
+    font-size: 15px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.manage-btn:hover {
+    color: #FFFFFF;
+    border-color: #FFFFFF;
+}
+
+/* ==========================================================================
+   KEYFRAME ANIMATIONS
+   ========================================================================== */
+
+@keyframes revealSvgLeg {
+    0% {
+        transform: scale3d(1, 0, 1);
+        opacity: 0;
+    }
+    100% {
+        transform: scale3d(1, 1, 1);
+        opacity: 1;
+    }
+}
+
+@keyframes cameraZoomPassThrough {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 1;
+    }
+    40% {
+        transform: translate3d(0, 0, 200px) scale(3.5);
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(0, 0, 1000px) scale(45);
+        opacity: 0;
+    }
+}
+
+@keyframes ambientGlowPulse {
+    0% {
+        transform: translate3d(-50%, -50%, 0) scale(0.7);
+        opacity: 0;
+    }
+    40% {
+        transform: translate3d(-50%, -50%, 0) scale(1.1);
+        opacity: 0.45;
+    }
+    100% {
+        transform: translate3d(-50%, -50%, 0) scale(1.4);
+        opacity: 0;
+    }
+}
+
+@keyframes coreGlowPulse {
+    0% {
+        transform: translate3d(-50%, -50%, 0) scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: translate3d(-50%, -50%, 0) scale(1.35);
+        opacity: 0.65;
+    }
+    100% {
+        transform: translate3d(-50%, -50%, 0) scale(2);
+        opacity: 0;
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .netflix-logo-box {
+        width: 140px;
+        height: 217px;
+    }
+
+    .intro-controls {
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .whos-watching {
+        font-size: 38px;
+    }
+
+    .avatar {
+        width: 100px;
+        height: 100px;
+    }
+}
