@@ -1,5 +1,5 @@
 /* ==========================================================================
-   LIGHTNING FAST & ULTRA-RESPONSIVE NETFLIX INTRO ANIMATION - STYLESHEET
+   NETFLIX INTRO & MODERN DASHBOARD - STYLESHEET
    ========================================================================== */
 
 /* ---------- Tokens & Global Reset ---------- */
@@ -107,7 +107,7 @@ html, body {
 }
 
 /* ==========================================================================
-   2. MAIN INTRO CONTAINER (PUNCHY 1.2S TOTAL DURATION)
+   2. MAIN INTRO CONTAINER
    ========================================================================== */
 .netflix-intro {
     position: relative;
@@ -185,7 +185,7 @@ html, body {
 }
 
 /* ==========================================================================
-   3. PRECISION SVG 'N' LOGO (LIGHTNING FAST REVEAL & ZOOM)
+   3. PRECISION SVG 'N' LOGO
    ========================================================================== */
 .netflix-logo-box {
     position: relative;
@@ -203,7 +203,6 @@ html, body {
     overflow: visible;
 }
 
-/* SVG Path Animation Setup */
 .svg-leg {
     opacity: 0;
     will-change: transform, opacity;
@@ -224,7 +223,6 @@ html, body {
     transform: scale3d(1, 0, 1);
 }
 
-/* Lightning Fast 0.5s Ribbon Draw */
 .netflix-intro.animating .svg-left {
     animation: revealSvgLeg 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -237,7 +235,6 @@ html, body {
     animation: revealSvgLeg 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.12s forwards;
 }
 
-/* Ultra-Fast 0.55s Camera Zoom Pass-Through */
 .netflix-intro.zooming .netflix-logo-box {
     animation: cameraZoomPassThrough 0.55s cubic-bezier(0.7, 0, 0.84, 0) forwards;
 }
@@ -293,7 +290,225 @@ html, body {
 }
 
 /* ==========================================================================
-   5. POST-INTRO NETFLIX UI
+   5. GLASSMORPHIC MODALS (SETTINGS & TRAILER & ADD PROFILE)
+   ========================================================================== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(12px);
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.modal-card {
+    background: rgba(20, 20, 20, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    width: 440px;
+    max-width: 90%;
+    padding: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.btn-close-modal {
+    background: transparent;
+    border: none;
+    color: #AAA;
+    font-size: 28px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.btn-close-modal:hover {
+    color: #FFF;
+}
+
+.setting-group {
+    margin-bottom: 20px;
+}
+
+.setting-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #AAA;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.setting-group input[type="text"] {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: #FFF;
+    font-size: 14px;
+    outline: none;
+}
+
+.setting-group input[type="text"]:focus {
+    border-color: var(--netflix-red);
+}
+
+.speed-options {
+    display: flex;
+    gap: 8px;
+}
+
+.speed-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.08);
+    color: #CCC;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.speed-btn.active, .speed-btn:hover {
+    background: var(--netflix-red);
+    color: #FFF;
+    border-color: var(--netflix-red);
+}
+
+.theme-options, .avatar-color-options {
+    display: flex;
+    gap: 12px;
+}
+
+.theme-btn, .avatar-color-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.theme-btn.active, .avatar-color-btn.active, .theme-btn:hover, .avatar-color-btn:hover {
+    transform: scale(1.15);
+    border-color: #FFFFFF;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-primary-small {
+    background: var(--netflix-red);
+    color: #FFF;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-primary-small:hover {
+    background: var(--netflix-red-bright);
+}
+
+/* Movie Trailer Modal */
+.trailer-modal-card {
+    position: relative;
+    width: 700px;
+    max-width: 92%;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #181818;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95);
+}
+
+.floating-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    z-index: 10;
+    color: #FFF;
+}
+
+.trailer-hero {
+    position: relative;
+    padding: 50px 40px;
+    background: radial-gradient(circle at 70% 30%, #3a080b 0%, #141414 70%);
+}
+
+.badge-tag {
+    color: var(--netflix-red);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.hero-overlay-content h1 {
+    font-size: 38px;
+    font-weight: 900;
+    margin-bottom: 12px;
+}
+
+.hero-overlay-content p {
+    font-size: 14px;
+    color: #DDD;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.trailer-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-hero-play {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #FFF;
+    color: #000;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-hero-add {
+    background: rgba(109, 109, 110, 0.7);
+    color: #FFF;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   6. POST-INTRO NETFLIX UI
    ========================================================================== */
 .main-app {
     position: fixed;
@@ -311,15 +526,40 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 24px 60px;
+    padding: 20px 50px;
     background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
 }
 
+.nav-brand-group {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
 .nav-brand {
-    font-size: 32px;
+    font-size: 30px;
     font-weight: 900;
     letter-spacing: 2px;
     color: var(--netflix-red);
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 6px 12px;
+    border-radius: 4px;
+}
+
+.search-box input {
+    background: transparent;
+    border: none;
+    color: #FFF;
+    font-size: 13px;
+    outline: none;
+    width: 140px;
 }
 
 .nav-menu {
@@ -455,64 +695,28 @@ html, body {
     border-color: #FFFFFF;
 }
 
-/* ==========================================================================
-   KEYFRAME ANIMATIONS
-   ========================================================================== */
-
+/* Keyframe Animations */
 @keyframes revealSvgLeg {
-    0% {
-        transform: scale3d(1, 0, 1);
-        opacity: 0;
-    }
-    100% {
-        transform: scale3d(1, 1, 1);
-        opacity: 1;
-    }
+    0% { transform: scale3d(1, 0, 1); opacity: 0; }
+    100% { transform: scale3d(1, 1, 1); opacity: 1; }
 }
 
 @keyframes cameraZoomPassThrough {
-    0% {
-        transform: translate3d(0, 0, 0) scale(1);
-        opacity: 1;
-    }
-    40% {
-        transform: translate3d(0, 0, 200px) scale(3.5);
-        opacity: 1;
-    }
-    100% {
-        transform: translate3d(0, 0, 1000px) scale(45);
-        opacity: 0;
-    }
+    0% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+    40% { transform: translate3d(0, 0, 200px) scale(3.5); opacity: 1; }
+    100% { transform: translate3d(0, 0, 1000px) scale(45); opacity: 0; }
 }
 
 @keyframes ambientGlowPulse {
-    0% {
-        transform: translate3d(-50%, -50%, 0) scale(0.7);
-        opacity: 0;
-    }
-    40% {
-        transform: translate3d(-50%, -50%, 0) scale(1.1);
-        opacity: 0.45;
-    }
-    100% {
-        transform: translate3d(-50%, -50%, 0) scale(1.4);
-        opacity: 0;
-    }
+    0% { transform: translate3d(-50%, -50%, 0) scale(0.7); opacity: 0; }
+    40% { transform: translate3d(-50%, -50%, 0) scale(1.1); opacity: 0.45; }
+    100% { transform: translate3d(-50%, -50%, 0) scale(1.4); opacity: 0; }
 }
 
 @keyframes coreGlowPulse {
-    0% {
-        transform: translate3d(-50%, -50%, 0) scale(0.8);
-        opacity: 0;
-    }
-    50% {
-        transform: translate3d(-50%, -50%, 0) scale(1.35);
-        opacity: 0.65;
-    }
-    100% {
-        transform: translate3d(-50%, -50%, 0) scale(2);
-        opacity: 0;
-    }
+    0% { transform: translate3d(-50%, -50%, 0) scale(0.8); opacity: 0; }
+    50% { transform: translate3d(-50%, -50%, 0) scale(1.35); opacity: 0.65; }
+    100% { transform: translate3d(-50%, -50%, 0) scale(2); opacity: 0; }
 }
 
 @keyframes fadeIn {
@@ -522,22 +726,9 @@ html, body {
 
 /* Responsive */
 @media (max-width: 768px) {
-    .netflix-logo-box {
-        width: 140px;
-        height: 217px;
-    }
-
-    .intro-controls {
-        bottom: 15px;
-        right: 15px;
-    }
-
-    .whos-watching {
-        font-size: 38px;
-    }
-
-    .avatar {
-        width: 100px;
-        height: 100px;
-    }
+    .netflix-logo-box { width: 140px; height: 217px; }
+    .intro-controls { bottom: 15px; right: 15px; }
+    .whos-watching { font-size: 38px; }
+    .avatar { width: 100px; height: 100px; }
+    .nav-menu { display: none; }
 }
