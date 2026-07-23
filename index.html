@@ -73,22 +73,21 @@
         </div>
     </div>
 
-    <!-- Movie Trailer Modal -->
+    <!-- Media Detail Modal -->
     <div id="trailer-modal" class="modal-overlay hidden">
         <div class="trailer-modal-card">
             <button id="btn-close-trailer" class="btn-close-modal floating-close">&times;</button>
             <div class="trailer-hero">
-                <div class="hero-backdrop"></div>
                 <div class="hero-overlay-content">
-                    <span class="badge-tag">98% MATCH • 2026 • 4K ULTRA HD</span>
+                    <span class="badge-tag" id="detail-badge">98% MATCH • 2026 • 4K ULTRA HD</span>
                     <h1 id="trailer-title">STRANGER THINGS</h1>
                     <p id="trailer-desc">When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.</p>
                     <div class="trailer-actions">
-                        <button class="btn-hero-play">
+                        <button class="btn-hero-play" id="btn-play-media">
                             <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
                                 <path d="M8 5v14l11-7z"/>
                             </svg>
-                            Play Show
+                            Play Now
                         </button>
                         <button class="btn-hero-add">+ My List</button>
                     </div>
@@ -203,7 +202,7 @@
         </div>
     </main>
 
-    <!-- Post-Intro Destination (Netflix App UI) -->
+    <!-- Post-Intro Destination (Netflix App UI & Showcase) -->
     <div id="main-app" class="main-app hidden">
         <header class="netflix-header">
             <div class="nav-brand-group">
@@ -212,15 +211,14 @@
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                         <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
                     </svg>
-                    <input type="text" id="input-search" placeholder="Titles, genres...">
+                    <input type="text" id="input-search" placeholder="Search movies, TV shows, music...">
                 </div>
             </div>
             <nav class="nav-menu">
-                <a href="#" class="active">Home</a>
-                <a href="#">TV Shows</a>
-                <a href="#">Movies</a>
-                <a href="#">New & Popular</a>
-                <a href="#">My List</a>
+                <a href="#" class="nav-tab active" data-tab="all">All</a>
+                <a href="#" class="nav-tab" data-tab="movies">Movies</a>
+                <a href="#" class="nav-tab" data-tab="tv">TV Shows</a>
+                <a href="#" class="nav-tab" data-tab="music">Music & Soundtracks</a>
             </nav>
             <div class="nav-actions">
                 <button id="btn-replay-nav" class="replay-nav-btn">
@@ -232,10 +230,11 @@
             </div>
         </header>
 
-        <section class="profiles-container">
+        <!-- "Who's Watching?" Profile Selector Section -->
+        <section id="profile-selection-section" class="profiles-container">
             <h1 class="whos-watching">Who's watching?</h1>
             <div class="profile-cards" id="profile-cards-grid">
-                <div class="profile-card" data-name="User">
+                <div class="profile-card" data-name="Primary">
                     <div class="avatar avatar-red">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png" alt="Profile Avatar" onerror="this.parentNode.innerHTML='<span style=\'font-size:36px;font-weight:bold;color:white;\'>N</span>'">
                     </div>
@@ -263,6 +262,184 @@
                 </div>
             </div>
             <button class="manage-btn">Manage Profiles</button>
+        </section>
+
+        <!-- Showcase Dashboard (Revealed after selecting profile) -->
+        <section id="showcase-dashboard" class="showcase-dashboard hidden">
+            <!-- Hero Featured Showcase Banner -->
+            <div class="featured-hero">
+                <div class="hero-bg-image" style="background-image: url('assets/stranger_things.png');"></div>
+                <div class="hero-vignette"></div>
+                <div class="featured-hero-content">
+                    <span class="n-series-badge">🔥 #1 IN SHOWS TODAY</span>
+                    <h1 class="featured-title">STRANGER THINGS 5</h1>
+                    <p class="featured-desc">The final chapter begins. Mysterious forces take over Hawkins as Eleven and the group unite for their ultimate battle.</p>
+                    <div class="featured-buttons">
+                        <button class="btn-hero-play media-trigger-btn" data-title="Stranger Things 5" data-badge="99% MATCH • 2026 • 4K ULTRA HD" data-desc="The final chapter begins. Mysterious forces take over Hawkins as Eleven and the group unite for their ultimate battle.">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            Play
+                        </button>
+                        <button class="btn-hero-info media-trigger-btn" data-title="Stranger Things 5" data-badge="99% MATCH • 2026 • 4K ULTRA HD" data-desc="The final chapter begins. Mysterious forces take over Hawkins as Eleven and the group unite for their ultimate battle.">
+                            More Info
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Rows -->
+            <div class="rows-container">
+                <!-- Row 1: Popular TV Shows -->
+                <div class="media-row-group" data-category="tv">
+                    <h2 class="row-title">Popular TV Shows</h2>
+                    <div class="cards-carousel">
+                        <div class="media-card media-trigger-btn" data-title="Stranger Things" data-badge="99% MATCH • TV-MA • Sci-Fi" data-desc="When a young boy vanishes, a small town uncovers a mystery involving secret experiments and terrifying supernatural forces.">
+                            <div class="card-thumb" style="background-image: url('assets/stranger_things.png');"></div>
+                            <div class="card-info">
+                                <span class="card-name">Stranger Things</span>
+                                <span class="card-sub">Sci-Fi • Horror</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="Cyberpunk: Edgerunners" data-badge="97% MATCH • TV-MA • Anime" data-desc="A street kid trying to survive in a technology and body modification-obsessed city of the future.">
+                            <div class="card-thumb" style="background-image: url('assets/cyberpunk.png');"></div>
+                            <div class="card-info">
+                                <span class="card-name">Cyberpunk: Edgerunners</span>
+                                <span class="card-sub">Anime • Action</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="Wednesday" data-badge="98% MATCH • TV-14 • Mystery" data-desc="Smart, sarcastic and a little dead inside, Wednesday Addams investigates a murder spree while making new friends.">
+                            <div class="card-thumb avatar-purple-grad">
+                                <span class="card-placeholder-text">WEDNESDAY</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Wednesday</span>
+                                <span class="card-sub">Fantasy • Mystery</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="The Witcher" data-badge="96% MATCH • TV-MA • Fantasy" data-desc="Geralt of Rivia, a mutated monster-hunter for hire, journeys toward his destiny in a turbulent world.">
+                            <div class="card-thumb avatar-dark-grad">
+                                <span class="card-placeholder-text">THE WITCHER</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">The Witcher</span>
+                                <span class="card-sub">Fantasy • Action</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Trending Movies -->
+                <div class="media-row-group" data-category="movies">
+                    <h2 class="row-title">Trending Movies</h2>
+                    <div class="cards-carousel">
+                        <div class="media-card media-trigger-btn" data-title="Inception: Mind Heist" data-badge="98% MATCH • PG-13 • Sci-Fi" data-desc="A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea.">
+                            <div class="card-thumb avatar-blue-grad">
+                                <span class="card-placeholder-text">INCEPTION</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Inception</span>
+                                <span class="card-sub">Sci-Fi • Thriller</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="Interstellar" data-badge="99% MATCH • PG-13 • Sci-Fi" data-desc="A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.">
+                            <div class="card-thumb avatar-cyan-grad">
+                                <span class="card-placeholder-text">INTERSTELLAR</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Interstellar</span>
+                                <span class="card-sub">Sci-Fi • Adventure</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="The Dark Knight" data-badge="99% MATCH • PG-13 • Action" data-desc="Batman faces the Joker, a criminal mastermind who plunges Gotham City into chaos.">
+                            <div class="card-thumb avatar-dark-grad">
+                                <span class="card-placeholder-text">DARK KKNIGHT</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">The Dark Knight</span>
+                                <span class="card-sub">Action • Crime</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="Glass Onion" data-badge="95% MATCH • PG-13 • Mystery" data-desc="Famed detective Benoit Blanc travels to Greece to peel back the layers of a mystery involving a tech billionaire.">
+                            <div class="card-thumb avatar-gold-grad">
+                                <span class="card-placeholder-text">GLASS ONION</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Glass Onion</span>
+                                <span class="card-sub">Comedy • Mystery</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Netflix Music & Official Soundtracks -->
+                <div class="media-row-group" data-category="music">
+                    <h2 class="row-title">🎵 Netflix Music & Soundtracks</h2>
+                    <div class="cards-carousel">
+                        <div class="media-card music-card media-trigger-btn" data-title="Stranger Things (Synthwave Theme)" data-badge="OFFICIAL SOUNDTRACK • 80s SYNTH" data-desc="Official retro synthwave theme song from Stranger Things OST.">
+                            <div class="card-thumb music-thumb-1">
+                                <div class="music-play-circle">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Stranger Things Theme</span>
+                                <span class="card-sub">80s Synthwave OST</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card music-card media-trigger-btn" data-title="I Really Want to Stay at Your House" data-badge="CYBERPUNK EDGERUNNERS OST" data-desc="Iconic emotional soundtrack from Cyberpunk Edgerunners.">
+                            <div class="card-thumb music-thumb-2">
+                                <div class="music-play-circle">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Stay at Your House</span>
+                                <span class="card-sub">Edgerunners Anime OST</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card music-card media-trigger-btn" data-title="Bridgerton (Classical Covers)" data-badge="BRIDGERTON OST • ORCHESTRAL" data-desc="Contemporary pop hits reimagined by classical string quartet.">
+                            <div class="card-thumb music-thumb-3">
+                                <div class="music-play-circle">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Bridgerton Covers</span>
+                                <span class="card-sub">Orchestral Pop OST</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card music-card media-trigger-btn" data-title="Squid Game (Pink Soldiers)" data-badge="SQUID GAME OST • ICONIC SCORE" data-desc="The spine-chilling iconic score from the global phenomenon Squid Game.">
+                            <div class="card-thumb music-thumb-4">
+                                <div class="music-play-circle">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Pink Soldiers</span>
+                                <span class="card-sub">Squid Game Original Score</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
     </div>
 
