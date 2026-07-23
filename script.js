@@ -1,16 +1,19 @@
 /* ==========================================================================
-   LIGHTNING FAST & ULTRA-RESPONSIVE NETFLIX INTRO ANIMATION - ENGINE
+   NETFLIX INTRO & MODERN DASHBOARD ENGINE
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
     // ---------- DOM References ----------
     const startOverlay = document.getElementById("start-overlay");
     const btnStart = document.getElementById("btn-start");
+    const startTitle = document.getElementById("start-title");
     const netflixIntro = document.getElementById("netflix-intro");
-    const logoBox = document.getElementById("netflix-logo-box");
     const canvas = document.getElementById("spectrum-canvas");
     const ctx = canvas ? canvas.getContext("2d") : null;
     const taDumAudio = document.getElementById("ta-dum-audio");
+    const mainApp = document.getElementById("main-app");
+    const navBrandText = document.getElementById("nav-brand-text");
+    const profileGrid = document.getElementById("profile-cards-grid");
 
     // Controls
     const btnMute = document.getElementById("btn-mute");
@@ -19,9 +22,36 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnReplayIntro = document.getElementById("btn-replay-intro");
     const btnSkipIntro = document.getElementById("btn-skip-intro");
     const btnReplayNav = document.getElementById("btn-replay-nav");
+    const btnOpenSettings = document.getElementById("btn-open-settings");
 
-    // Main App
-    const mainApp = document.getElementById("main-app");
+    // Modals & Controls
+    const settingsModal = document.getElementById("settings-modal");
+    const btnCloseSettings = document.getElementById("btn-close-settings");
+    const btnSaveSettings = document.getElementById("btn-save-settings");
+    const inputBrandTitle = document.getElementById("input-brand-title");
+    const speedBtns = document.querySelectorAll(".speed-btn");
+    const themeBtns = document.querySelectorAll(".theme-btn");
+
+    // Trailer Modal
+    const trailerModal = document.getElementById("trailer-modal");
+    const btnCloseTrailer = document.getElementById("btn-close-trailer");
+    const trailerTitle = document.getElementById("trailer-title");
+
+    // Add Profile Modal
+    const addProfileModal = document.getElementById("add-profile-modal");
+    const btnOpenAddProfile = document.getElementById("btn-open-add-profile");
+    const btnCloseAddProfile = document.getElementById("btn-close-add-profile");
+    const btnCreateProfile = document.getElementById("btn-create-profile");
+    const inputProfileName = document.getElementById("input-profile-name");
+    const avatarColorBtns = document.querySelectorAll(".avatar-color-btn");
+
+    // Search
+    const inputSearch = document.getElementById("input-search");
+
+    // SVG Stops
+    const stopLeft1 = document.getElementById("stop-left-1");
+    const stopRight1 = document.getElementById("stop-right-1");
+    const stopCenter1 = document.getElementById("stop-center-1");
 
     // ---------- State ----------
     let isMuted = false;
@@ -30,6 +60,27 @@ document.addEventListener("DOMContentLoaded", () => {
     let activeTimers = [];
     let isSpectrumActive = false;
     let zoomStartTime = 0;
+
+    // Configurable Settings
+    let config = {
+        speed: "fast", // 'fast' (1.15s), 'normal' (2.0s), 'slow' (3.5s)
+        theme: "red",   // 'red', 'cyber', 'gold', 'emerald'
+        brandTitle: "NETFLIX",
+        selectedAvatarColor: "#1E88E5"
+    };
+
+    const speedTimings = {
+        fast: { draw: 600, zoom: 500, total: 1150 },
+        normal: { draw: 1000, zoom: 900, total: 2000 },
+        slow: { draw: 1800, zoom: 1600, total: 3500 }
+    };
+
+    const themePalettes = {
+        red: ["#E50914", "#FF1E27", "#B81D24", "#D80073", "#A200FF", "#00D2FF", "#FFFFFF"],
+        cyber: ["#00D2FF", "#00A4EF", "#0055FF", "#00E676", "#FF007F", "#FFFFFF"],
+        gold: ["#FFB400", "#FFD700", "#FF8C00", "#E50914", "#FFFFFF"],
+        emerald: ["#00E676", "#00C853", "#1DE9B6", "#00D2FF", "#FFFFFF"]
+    };
 
     // ---------- Canvas Sizing ----------
     function resizeCanvas() {
@@ -40,19 +91,14 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    // ---------- 1. Play Official Netflix "Ta-dum" Sound ----------
+    // ---------- Audio ----------
     function playNetflixTaDumSound() {
         if (isMuted) return;
-
         if (taDumAudio) {
             taDumAudio.currentTime = 0;
             taDumAudio.muted = false;
-            const playPromise = taDumAudio.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(err => {
-                    console.log("Audio play deferred by browser policy:", err);
-                });
-            }
+            const p = taDumAudio.play();
+            if (p !== undefined) p.catch(() => {});
         }
     }
 
@@ -63,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ---------- 2. Ultra-Fast Zero-Lag Spectrum Engine ----------
+    // ---------- Spectrum Canvas Engine ----------
     class VerticalSpectrumStripe {
         constructor(index, total) {
             this.index = index;
@@ -73,23 +119,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         reset() {
             const spread = (this.index / this.total) - 0.5;
-            this.initialXRatio = spread * 0.4; // Clustered in 'N' center
+            this.initialXRatio = spread * 0.4;
             this.baseWidth = Math.random() * 6 + 2;
 
-            // Authentic Netflix spectrum palette
-            const palette = [
-                "#E50914", // Netflix Red
-                "#FF1E27", // Bright Red
-                "#B81D24", // Crimson
-                "#D80073", // Magenta
-                "#A200FF", // Purple
-                "#00D2FF", // Cyan
-                "#00A4EF", // Electric Blue
-                "#FFB400", // Gold
-                "#FFFFFF", // Pure White
-                "#FF3366"  // Coral Pink
-            ];
-
+            const palette = themePalettes[config.theme] || themePalettes.red;
             this.color = palette[Math.floor(Math.random() * palette.length)];
             this.alpha = Math.random() * 0.85 + 0.15;
             this.currentX = 0;
@@ -100,15 +133,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const viewportWidth = window.innerWidth;
             const centerX = viewportWidth / 2;
             
-            // Ultra-fast exponential warp expansion
             const cubicProgress = Math.pow(progress, 3);
             const expansionFactor = cubicProgress * 6.5;
             
-            // Sideways expansion calculation
             this.currentX = centerX + (this.initialXRatio * viewportWidth) * (1 + expansionFactor);
             this.currentWidth = this.baseWidth * (1 + expansionFactor * 5.0);
 
-            // Fast alpha drop
             if (progress > 0.4) {
                 this.alpha *= 0.82;
             }
@@ -116,24 +146,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         draw() {
             if (this.alpha <= 0.01 || !ctx) return;
-
-            const viewportHeight = window.innerHeight;
             ctx.globalAlpha = this.alpha;
             ctx.fillStyle = this.color;
-
-            // High performance GPU fill
-            ctx.fillRect(
-                this.currentX - this.currentWidth / 2,
-                0,
-                this.currentWidth,
-                viewportHeight
-            );
+            ctx.fillRect(this.currentX - this.currentWidth / 2, 0, this.currentWidth, window.innerHeight);
         }
     }
 
     function initSpectrumEngine() {
         spectrumStripes = [];
-        const count = 50; // Ultra-optimized 50 stripes for maximum 240fps fluid rendering
+        const count = 60;
         for (let i = 0; i < count; i++) {
             spectrumStripes.push(new VerticalSpectrumStripe(i, count));
         }
@@ -144,26 +165,26 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!zoomStartTime) zoomStartTime = timestamp;
         
         const elapsed = timestamp - zoomStartTime;
-        const duration = 500; // Hyper-fast 0.5s zoom burst phase
+        const currentTiming = speedTimings[config.speed] || speedTimings.fast;
+        const duration = currentTiming.zoom;
         const progress = Math.min(elapsed / duration, 1.0);
 
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
         if (isSpectrumActive) {
-            // Additive GPU Composite Mode
             ctx.save();
             ctx.globalCompositeOperation = 'lighter';
 
-            // Center bloom light glow
             const centerX = window.innerWidth / 2;
             const centerY = window.innerHeight / 2;
+            const bloomColor = themePalettes[config.theme][0] || "#E50914";
+            
             const bloomGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, window.innerWidth * 0.5);
-            bloomGradient.addColorStop(0, "rgba(229, 9, 20, " + (0.5 * (1 - progress)) + ")");
+            bloomGradient.addColorStop(0, bloomColor + Math.floor((0.5 * (1 - progress)) * 255).toString(16).padStart(2, '0'));
             bloomGradient.addColorStop(1, "rgba(0, 0, 0, 0)");
             ctx.fillStyle = bloomGradient;
             ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-            // Update & render stripes
             spectrumStripes.forEach(stripe => {
                 stripe.update(progress);
                 stripe.draw();
@@ -179,13 +200,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ---------- 3. Lightning Fast Timeline Controller ----------
+    // ---------- Intro Timeline ----------
     function clearTimers() {
         activeTimers.forEach(t => clearTimeout(t));
         activeTimers = [];
-        if (animFrameId) {
-            cancelAnimationFrame(animFrameId);
-        }
+        if (animFrameId) cancelAnimationFrame(animFrameId);
         if (ctx) ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
         isSpectrumActive = false;
         zoomStartTime = 0;
@@ -194,7 +213,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function startRealNetflixIntro() {
         clearTimers();
 
-        // Show intro layer, hide overlay and main app
         if (startOverlay) startOverlay.classList.add("hidden");
         if (mainApp) mainApp.classList.add("hidden");
         
@@ -202,33 +220,31 @@ document.addEventListener("DOMContentLoaded", () => {
             netflixIntro.classList.remove("hidden");
             netflixIntro.style.opacity = "1";
             netflixIntro.classList.remove("animating", "zooming");
-            void netflixIntro.offsetWidth; // Reflow reset
+            void netflixIntro.offsetWidth;
         }
 
-        // t=0.0s: Play Official "Ta-dum" MP3 & Trigger N Ribbon Draw
         playNetflixTaDumSound();
         if (netflixIntro) netflixIntro.classList.add("animating");
 
-        // t=0.6s: Trigger Camera Zoom into 'N' + Vertical Barcode Spectrum Light Rays!
+        const timing = speedTimings[config.speed] || speedTimings.fast;
+
         const timer1 = setTimeout(() => {
             if (netflixIntro) netflixIntro.classList.add("zooming");
             isSpectrumActive = true;
             zoomStartTime = 0;
             initSpectrumEngine();
             animFrameId = requestAnimationFrame(renderSpectrumLoop);
-        }, 600);
+        }, timing.draw);
         activeTimers.push(timer1);
 
-        // t=1.15s: Zoom completes fast -> Transition IMMEDIATELY to Netflix App
         const timer2 = setTimeout(() => {
             transitionToMainApp();
-        }, 1150);
+        }, timing.total);
         activeTimers.push(timer2);
     }
 
     function transitionToMainApp() {
         clearTimers();
-
         if (netflixIntro) netflixIntro.style.opacity = "0";
         setTimeout(() => {
             if (netflixIntro) netflixIntro.classList.add("hidden");
@@ -239,8 +255,149 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 150);
     }
 
-    // ---------- 4. Event Handlers ----------
+    // ---------- Settings Modal Event Handlers ----------
 
+    if (btnOpenSettings) {
+        btnOpenSettings.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (settingsModal) settingsModal.classList.remove("hidden");
+        });
+    }
+
+    if (btnCloseSettings) {
+        btnCloseSettings.addEventListener("click", () => {
+            if (settingsModal) settingsModal.classList.add("hidden");
+        });
+    }
+
+    speedBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            speedBtns.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            config.speed = btn.getAttribute("data-speed");
+        });
+    });
+
+    themeBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            themeBtns.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            config.theme = btn.getAttribute("data-theme");
+            applyThemeColors(config.theme);
+        });
+    });
+
+    function applyThemeColors(themeName) {
+        const palette = themePalettes[themeName] || themePalettes.red;
+        const primaryColor = palette[0];
+        const brightColor = palette[1] || palette[0];
+
+        if (stopLeft1) stopLeft1.setAttribute("stop-color", primaryColor);
+        if (stopRight1) stopRight1.setAttribute("stop-color", primaryColor);
+        if (stopCenter1) stopCenter1.setAttribute("stop-color", brightColor);
+
+        document.documentElement.style.setProperty('--netflix-red', primaryColor);
+        document.documentElement.style.setProperty('--netflix-red-bright', brightColor);
+    }
+
+    if (btnSaveSettings) {
+        btnSaveSettings.addEventListener("click", () => {
+            if (inputBrandTitle && inputBrandTitle.value.trim() !== "") {
+                config.brandTitle = inputBrandTitle.value.trim();
+                if (startTitle) startTitle.textContent = config.brandTitle;
+                if (navBrandText) navBrandText.textContent = config.brandTitle;
+            }
+            if (settingsModal) settingsModal.classList.add("hidden");
+            startRealNetflixIntro();
+        });
+    }
+
+    // ---------- Trailer Modal Handlers ----------
+    function openTrailerModal(name) {
+        if (trailerTitle) trailerTitle.textContent = name || "STRANGER THINGS";
+        if (trailerModal) trailerModal.classList.remove("hidden");
+    }
+
+    if (btnCloseTrailer) {
+        btnCloseTrailer.addEventListener("click", () => {
+            if (trailerModal) trailerModal.classList.add("hidden");
+        });
+    }
+
+    // Profile Click opens Trailer Showcase
+    document.querySelectorAll(".profile-card:not(.add)").forEach(card => {
+        card.addEventListener("click", () => {
+            const name = card.getAttribute("data-name") || "Stranger Things";
+            openTrailerModal(name + "'s Pick: STRANGER THINGS");
+        });
+    });
+
+    // ---------- Add Profile Modal Handlers ----------
+    if (btnOpenAddProfile) {
+        btnOpenAddProfile.addEventListener("click", () => {
+            if (addProfileModal) addProfileModal.classList.remove("hidden");
+        });
+    }
+
+    if (btnCloseAddProfile) {
+        btnCloseAddProfile.addEventListener("click", () => {
+            if (addProfileModal) addProfileModal.classList.add("hidden");
+        });
+    }
+
+    avatarColorBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            avatarColorBtns.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            config.selectedAvatarColor = btn.getAttribute("data-color");
+        });
+    });
+
+    if (btnCreateProfile) {
+        btnCreateProfile.addEventListener("click", () => {
+            const name = (inputProfileName && inputProfileName.value.trim()) || "New Profile";
+            const initial = name.charAt(0).toUpperCase();
+
+            // Create new profile card element
+            const newCard = document.createElement("div");
+            newCard.className = "profile-card";
+            newCard.setAttribute("data-name", name);
+            newCard.innerHTML = `
+                <div class="avatar" style="background: ${config.selectedAvatarColor};">
+                    <span>${initial}</span>
+                </div>
+                <span class="name">${name}</span>
+            `;
+
+            newCard.addEventListener("click", () => {
+                openTrailerModal(name + "'s Pick: STRANGER THINGS");
+            });
+
+            if (profileGrid && btnOpenAddProfile) {
+                profileGrid.insertBefore(newCard, btnOpenAddProfile);
+            }
+
+            if (addProfileModal) addProfileModal.classList.add("hidden");
+        });
+    }
+
+    // ---------- Live Search Filter ----------
+    if (inputSearch) {
+        inputSearch.addEventListener("input", (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const cards = document.querySelectorAll(".profile-card:not(.add)");
+            cards.forEach(card => {
+                const name = card.querySelector(".name").textContent.toLowerCase();
+                if (name.includes(query)) {
+                    card.style.display = "flex";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        });
+    }
+
+    // ---------- Standard Control Events ----------
     if (startOverlay) {
         startOverlay.addEventListener("click", () => {
             startRealNetflixIntro();
