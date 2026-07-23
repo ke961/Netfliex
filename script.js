@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NETFLIX INTRO & MODERN DASHBOARD ENGINE
+   NETFLIX INTRO & SHOWCASE DASHBOARD ENGINE
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -13,7 +13,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const taDumAudio = document.getElementById("ta-dum-audio");
     const mainApp = document.getElementById("main-app");
     const navBrandText = document.getElementById("nav-brand-text");
+
+    // Profile & Showcase Sections
+    const profileSelectionSection = document.getElementById("profile-selection-section");
+    const showcaseDashboard = document.getElementById("showcase-dashboard");
     const profileGrid = document.getElementById("profile-cards-grid");
+
+    // Navigation & Tabs
+    const navTabs = document.querySelectorAll(".nav-tab");
+    const mediaRowGroups = document.querySelectorAll(".media-row-group");
 
     // Controls
     const btnMute = document.getElementById("btn-mute");
@@ -24,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnReplayNav = document.getElementById("btn-replay-nav");
     const btnOpenSettings = document.getElementById("btn-open-settings");
 
-    // Modals & Controls
+    // Settings Modal
     const settingsModal = document.getElementById("settings-modal");
     const btnCloseSettings = document.getElementById("btn-close-settings");
     const btnSaveSettings = document.getElementById("btn-save-settings");
@@ -32,10 +40,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const speedBtns = document.querySelectorAll(".speed-btn");
     const themeBtns = document.querySelectorAll(".theme-btn");
 
-    // Trailer Modal
+    // Media Detail Modal
     const trailerModal = document.getElementById("trailer-modal");
     const btnCloseTrailer = document.getElementById("btn-close-trailer");
     const trailerTitle = document.getElementById("trailer-title");
+    const detailBadge = document.getElementById("detail-badge");
+    const trailerDesc = document.getElementById("trailer-desc");
+    const btnPlayMedia = document.getElementById("btn-play-media");
 
     // Add Profile Modal
     const addProfileModal = document.getElementById("add-profile-modal");
@@ -48,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Search
     const inputSearch = document.getElementById("input-search");
 
-    // SVG Stops
+    // SVG Gradient Stops
     const stopLeft1 = document.getElementById("stop-left-1");
     const stopRight1 = document.getElementById("stop-right-1");
     const stopCenter1 = document.getElementById("stop-center-1");
@@ -61,10 +72,9 @@ document.addEventListener("DOMContentLoaded", () => {
     let isSpectrumActive = false;
     let zoomStartTime = 0;
 
-    // Configurable Settings
     let config = {
-        speed: "fast", // 'fast' (1.15s), 'normal' (2.0s), 'slow' (3.5s)
-        theme: "red",   // 'red', 'cyber', 'gold', 'emerald'
+        speed: "fast",
+        theme: "red",
         brandTitle: "NETFLIX",
         selectedAvatarColor: "#1E88E5"
     };
@@ -154,7 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function initSpectrumEngine() {
         spectrumStripes = [];
-        const count = 60;
+        const count = 50;
         for (let i = 0; i < count; i++) {
             spectrumStripes.push(new VerticalSpectrumStripe(i, count));
         }
@@ -200,7 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ---------- Intro Timeline ----------
+    // ---------- Timeline Controller ----------
     function clearTimers() {
         activeTimers.forEach(t => clearTimeout(t));
         activeTimers = [];
@@ -255,8 +265,75 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 150);
     }
 
-    // ---------- Settings Modal Event Handlers ----------
+    // ---------- Profile Click -> Enter Showcase Dashboard ----------
+    function setupProfileClickHandlers() {
+        document.querySelectorAll(".profile-card:not(.add)").forEach(card => {
+            card.addEventListener("click", () => {
+                const name = card.getAttribute("data-name") || "Primary";
+                if (profileSelectionSection) profileSelectionSection.classList.add("hidden");
+                if (showcaseDashboard) showcaseDashboard.classList.remove("hidden");
+            });
+        });
+    }
+    setupProfileClickHandlers();
 
+    // ---------- Nav Tabs Filter ----------
+    navTabs.forEach(tab => {
+        tab.addEventListener("click", (e) => {
+            e.preventDefault();
+            navTabs.forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+
+            const category = tab.getAttribute("data-tab");
+            
+            // Switch view
+            if (profileSelectionSection) profileSelectionSection.classList.add("hidden");
+            if (showcaseDashboard) showcaseDashboard.classList.remove("hidden");
+
+            mediaRowGroups.forEach(group => {
+                if (category === "all" || group.getAttribute("data-category") === category) {
+                    group.style.display = "block";
+                } else {
+                    group.style.display = "none";
+                }
+            });
+        });
+    });
+
+    // ---------- Media Detail Modal Handlers ----------
+    function openMediaDetailModal(title, badge, desc) {
+        if (trailerTitle) trailerTitle.textContent = title || "STRANGER THINGS";
+        if (detailBadge) detailBadge.textContent = badge || "98% MATCH • 2026 • 4K ULTRA HD";
+        if (trailerDesc) trailerDesc.textContent = desc || "Experience the mystery, action, and music.";
+        if (trailerModal) trailerModal.classList.remove("hidden");
+    }
+
+    function setupMediaTriggerHandlers() {
+        document.querySelectorAll(".media-trigger-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const title = btn.getAttribute("data-title");
+                const badge = btn.getAttribute("data-badge");
+                const desc = btn.getAttribute("data-desc");
+                openMediaDetailModal(title, badge, desc);
+            });
+        });
+    }
+    setupMediaTriggerHandlers();
+
+    if (btnCloseTrailer) {
+        btnCloseTrailer.addEventListener("click", () => {
+            if (trailerModal) trailerModal.classList.add("hidden");
+        });
+    }
+
+    if (btnPlayMedia) {
+        btnPlayMedia.addEventListener("click", () => {
+            alert("▶️ Now Streaming: " + (trailerTitle ? trailerTitle.textContent : "Media"));
+        });
+    }
+
+    // ---------- Settings Modal ----------
     if (btnOpenSettings) {
         btnOpenSettings.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -312,27 +389,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ---------- Trailer Modal Handlers ----------
-    function openTrailerModal(name) {
-        if (trailerTitle) trailerTitle.textContent = name || "STRANGER THINGS";
-        if (trailerModal) trailerModal.classList.remove("hidden");
-    }
-
-    if (btnCloseTrailer) {
-        btnCloseTrailer.addEventListener("click", () => {
-            if (trailerModal) trailerModal.classList.add("hidden");
-        });
-    }
-
-    // Profile Click opens Trailer Showcase
-    document.querySelectorAll(".profile-card:not(.add)").forEach(card => {
-        card.addEventListener("click", () => {
-            const name = card.getAttribute("data-name") || "Stranger Things";
-            openTrailerModal(name + "'s Pick: STRANGER THINGS");
-        });
-    });
-
-    // ---------- Add Profile Modal Handlers ----------
+    // ---------- Add Profile Modal ----------
     if (btnOpenAddProfile) {
         btnOpenAddProfile.addEventListener("click", () => {
             if (addProfileModal) addProfileModal.classList.remove("hidden");
@@ -358,7 +415,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const name = (inputProfileName && inputProfileName.value.trim()) || "New Profile";
             const initial = name.charAt(0).toUpperCase();
 
-            // Create new profile card element
             const newCard = document.createElement("div");
             newCard.className = "profile-card";
             newCard.setAttribute("data-name", name);
@@ -370,7 +426,8 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
 
             newCard.addEventListener("click", () => {
-                openTrailerModal(name + "'s Pick: STRANGER THINGS");
+                if (profileSelectionSection) profileSelectionSection.classList.add("hidden");
+                if (showcaseDashboard) showcaseDashboard.classList.remove("hidden");
             });
 
             if (profileGrid && btnOpenAddProfile) {
@@ -385,11 +442,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (inputSearch) {
         inputSearch.addEventListener("input", (e) => {
             const query = e.target.value.toLowerCase().trim();
-            const cards = document.querySelectorAll(".profile-card:not(.add)");
+            const cards = document.querySelectorAll(".media-card");
             cards.forEach(card => {
-                const name = card.querySelector(".name").textContent.toLowerCase();
-                if (name.includes(query)) {
-                    card.style.display = "flex";
+                const title = (card.getAttribute("data-title") || "").toLowerCase();
+                const sub = card.querySelector(".card-sub") ? card.querySelector(".card-sub").textContent.toLowerCase() : "";
+                if (title.includes(query) || sub.includes(query)) {
+                    card.style.display = "block";
                 } else {
                     card.style.display = "none";
                 }
