@@ -91,7 +91,7 @@
                     </div>
                     <p id="trailer-desc">When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.</p>
                     <div class="trailer-actions">
-                        <button class="btn-hero-play" id="btn-play-media">
+                        <button class="btn-modal-play" id="btn-play-media">
                             <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
                                 <path d="M8 5v14l11-7z"/>
                             </svg>
@@ -898,10 +898,48 @@
                     </div>
                 </div>
 
+                <!-- Row 8: Trending Now -->
+                <div class="media-row-group" data-category="trending">
+                    <h2 class="row-title">🔥 Trending Now</h2>
+                    <div class="cards-carousel"></div>
+                </div>
+
+                <!-- Row 9: Award-Winning Series -->
+                <div class="media-row-group" data-category="series">
+                    <h2 class="row-title">📺 Award-Winning Series</h2>
+                    <div class="cards-carousel"></div>
+                </div>
+
+                <!-- Row 10: Nature & Documentaries -->
+                <div class="media-row-group" data-category="documentary">
+                    <h2 class="row-title">🌍 Nature & Documentaries</h2>
+                    <div class="cards-carousel"></div>
+                </div>
+
             </div>
         </section>
     </div>
-
+<div id="media-player-modal" class="media-player-modal hidden" aria-hidden="true">
+  <div class="media-player-overlay"></div>
+  <div class="media-player-wrapper">
+    <div class="media-player-header">
+      <div class="media-player-info">
+        <span id="media-player-badge" class="media-player-badge">NOW STREAMING</span>
+        <h2 id="media-player-title" class="media-player-title">Media Title</h2>
+        <p id="media-player-desc" class="media-player-desc"></p>
+      </div>
+      <div class="media-player-actions">
+        <label class="btn-load-file" title="Play any video file from your device (.mp4, .mkv, .webm)">
+          📁 Play Local Movie
+          <input type="file" id="input-local-video" accept="video/*" style="display: none;">
+        </label>
+        <button id="btn-custom-url" class="btn-custom-url" title="Paste custom video URL or stream link">🔗 Paste Movie Link</button>
+        <button id="media-player-close" class="media-player-close" title="Close (Esc)">✕</button>
+      </div>
+    </div>
+    <div id="media-player-container" class="media-player-container"></div>
+  </div>
+</div>
     <script src="script.js"></script>
 </body>
 </html>
