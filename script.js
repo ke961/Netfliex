@@ -922,15 +922,24 @@ document.addEventListener("DOMContentLoaded", () => {
         openMediaPlayer(item);
     }
 
-    function openMediaPlayer(item) {
+    let currentActiveItem = null;
+    let isCinemaEmbedMode = false;
+
+    function openMediaPlayer(item, forceMode) {
         if (!item) return;
         stopNetflixAudio();
+        currentActiveItem = item;
+
+        if (typeof forceMode === 'boolean') {
+            isCinemaEmbedMode = forceMode;
+        }
 
         const modal = document.getElementById('media-player-modal');
         const titleEl = document.getElementById('media-player-title');
         const badgeEl = document.getElementById('media-player-badge');
         const descEl = document.getElementById('media-player-desc');
         const container = document.getElementById('media-player-container');
+        const toggleBtn = document.getElementById('btn-toggle-cinema-mode');
         if (!modal || !container) return;
 
         container.innerHTML = '';
@@ -938,7 +947,21 @@ document.addEventListener("DOMContentLoaded", () => {
         if (badgeEl) badgeEl.textContent = item.badge || (item.type === 'song' ? 'NOW PLAYING • SOUNDTRACK' : 'NOW STREAMING • 4K ULTRA HD');
         if (descEl) descEl.textContent = item.description || item.subtitle || "Streaming high quality audio and video.";
 
-        if (item.type === 'song') {
+        if (toggleBtn) {
+            toggleBtn.textContent = isCinemaEmbedMode ? "🎬 Direct Video Mode" : "🎥 Cinema Mode";
+        }
+
+        if (isCinemaEmbedMode && item.embedUrl) {
+            const iframe = document.createElement('iframe');
+            iframe.src = item.embedUrl;
+            iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+            iframe.allowFullscreen = true;
+            iframe.style.width = '100%';
+            iframe.style.height = '70vh';
+            iframe.style.border = 'none';
+            iframe.style.borderRadius = '12px';
+            container.appendChild(iframe);
+        } else if (item.type === 'song') {
             const audioWrapper = document.createElement('div');
             audioWrapper.className = 'audio-player-card';
             audioWrapper.innerHTML = `
@@ -1003,6 +1026,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         modal.classList.remove('hidden');
+    }
+
+    const btnToggleCinema = document.getElementById('btn-toggle-cinema-mode');
+    if (btnToggleCinema) {
+        btnToggleCinema.addEventListener('click', () => {
+            if (!currentActiveItem) return;
+            isCinemaEmbedMode = !isCinemaEmbedMode;
+            openMediaPlayer(currentActiveItem, isCinemaEmbedMode);
+        });
     }
 
     function closeMediaPlayer() {
