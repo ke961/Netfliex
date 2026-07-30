@@ -87,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let isSpectrumActive = false;
     let zoomStartTime = 0;
     let currentDetailTitle = "";
+    let isTransitioning = false; // Ghost-click guard
 
     let config = {
         speed: "fast",
@@ -342,6 +343,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function transitionToMainApp() {
         clearTimers();
+        // Lock interactions during transition to prevent ghost clicks
+        isTransitioning = true;
         if (netflixIntro) netflixIntro.style.opacity = "0";
         setTimeout(() => {
             if (netflixIntro) netflixIntro.classList.add("hidden");
@@ -351,6 +354,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             refreshMyListIndicators();
             injectHoverPreviews();
+            // Allow interactions after 600ms safety window
+            setTimeout(() => { isTransitioning = false; }, 600);
         }, 150);
     }
 
@@ -540,7 +545,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const likeBtn = preview.querySelector(".preview-like-btn");
             if (likeBtn) {
                 likeBtn.addEventListener("click", (e) => {
-                    e.stopPropagation();
+                e.stopPropagation();
                     const t = likeBtn.getAttribute("data-title");
                     setThumb(t, "up");
                 });
@@ -549,20 +554,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ---------- Media Detail Modal Handlers ----------
-    function openMediaDetailModal(title, badge, desc, match, year, maturity, seasons, genres) {
-        currentDetailTitle = title || "STRANGER THINGS";
-        if (trailerTitle) trailerTitle.textContent = currentDetailTitle;
-        if (detailBadge) detailBadge.textContent = badge || "98% MATCH • 2026 • 4K ULTRA HD";
-        if (trailerDesc) trailerDesc.textContent = desc || "Experience the mystery, action, and music.";
-        if (detailMatch) detailMatch.textContent = (match || "98") + "% Match";
-        if (detailYear) detailYear.textContent = year || "2026";
-        if (detailMaturity) detailMaturity.textContent = maturity || "TV-MA";
-        if (detailSeasons) detailSeasons.textContent = seasons || "1 Season";
+    let currentDetailItem = null;
+
+    function openMediaDetailModal(title, badge, desc, match, year, maturity, seasons, genres, src, embedUrl) {
+        let item = null;
+        if (typeof title === 'object' && title !== null) {
+            item = title;
+            currentDetailTitle = item.title;
+        } else {
+            currentDetailTitle = title || "Stranger Things";
+            item = window._mediaCatalog ? window._mediaCatalog.find(it => it.title.toLowerCase() === currentDetailTitle.toLowerCase()) : null;
+            if (!item) {
+                item = {
+                    title: currentDetailTitle,
+                    badge: badge || "98% MATCH • 2026 • 4K ULTRA HD",
+                    description: desc || "Experience the mystery, action, and music.",
+                    src: src || getUniqueFallbackVideo(currentDetailTitle),
+                    embedUrl: embedUrl || ""
+                };
+            }
+        }
+        currentDetailItem = item;
+
+        if (trailerTitle) trailerTitle.textContent = item.title;
+        if (detailBadge) detailBadge.textContent = item.badge || "98% MATCH • 2026 • 4K ULTRA HD";
+        if (trailerDesc) trailerDesc.textContent = item.description || desc || "Experience the mystery, action, and music.";
+        if (detailMatch) detailMatch.textContent = (item.match || match || "98") + "% Match";
+        if (detailYear) detailYear.textContent = item.year || year || "2026";
+        if (detailMaturity) detailMaturity.textContent = item.maturity || maturity || "TV-MA";
+        if (detailSeasons) detailSeasons.textContent = item.seasons || seasons || "1 Season";
 
         // Genre tags
         if (detailGenreTags) {
             detailGenreTags.innerHTML = "";
-            const genreList = (genres || "").split(",").filter(Boolean);
+            const gStr = item.genres ? (Array.isArray(item.genres) ? item.genres.join(",") : item.genres) : (genres || "");
+            const genreList = gStr.split(",").filter(Boolean);
             genreList.forEach(g => {
                 const pill = document.createElement("span");
                 pill.className = "detail-genre-pill";
@@ -583,28 +609,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (trailerModal) trailerModal.classList.remove("hidden");
     }
 
-    function setupMediaTriggerHandlers() {
-        document.querySelectorAll(".media-trigger-btn").forEach(btn => {
-            // Remove old listeners by cloning (only for non-clone elements)
-            if (btn._hasMediaListener) return;
-            btn._hasMediaListener = true;
-            
-            btn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                const title = btn.getAttribute("data-title");
-                const badge = btn.getAttribute("data-badge");
-                const desc = btn.getAttribute("data-desc");
-                const match = btn.getAttribute("data-match");
-                const year = btn.getAttribute("data-year");
-                const maturity = btn.getAttribute("data-maturity");
-                const seasons = btn.getAttribute("data-seasons");
-                const genres = btn.getAttribute("data-genres");
-                openMediaDetailModal(title, badge, desc, match, year, maturity, seasons, genres);
-            });
-        });
-    }
-    setupMediaTriggerHandlers();
-
     if (btnCloseTrailer) {
         btnCloseTrailer.addEventListener("click", () => {
             if (trailerModal) trailerModal.classList.add("hidden");
@@ -613,7 +617,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (btnPlayMedia) {
         btnPlayMedia.addEventListener("click", () => {
-            alert("▶️ Now Streaming: " + (trailerTitle ? trailerTitle.textContent : "Media"));
+            if (trailerModal) trailerModal.classList.add("hidden");
+            if (currentDetailItem) {
+                openMediaPlayer(currentDetailItem);
+            } else {
+                openMediaPlayerByTitle(currentDetailTitle);
+            }
+        });
+    }
+
+    // Hero Play button listener
+    const heroPlayBtn = document.getElementById("btn-hero-play-main") || document.querySelector(".featured-hero .btn-hero-play");
+    if (heroPlayBtn) {
+        heroPlayBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openMediaPlayerByTitle("Stranger Things");
+        });
+    }
+
+    // Hero Info button listener
+    const heroInfoBtn = document.querySelector(".btn-hero-info");
+    if (heroInfoBtn) {
+        heroInfoBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const title = heroInfoBtn.getAttribute("data-title") || "Stranger Things";
+            const badge = heroInfoBtn.getAttribute("data-badge");
+            const desc = heroInfoBtn.getAttribute("data-desc");
+            const match = heroInfoBtn.getAttribute("data-match");
+            const year = heroInfoBtn.getAttribute("data-year");
+            const maturity = heroInfoBtn.getAttribute("data-maturity");
+            const seasons = heroInfoBtn.getAttribute("data-seasons");
+            const genres = heroInfoBtn.getAttribute("data-genres");
+            openMediaDetailModal(title, badge, desc, match, year, maturity, seasons, genres);
         });
     }
 
@@ -754,7 +789,6 @@ document.addEventListener("DOMContentLoaded", () => {
         inputSearch.addEventListener("input", (e) => {
             const query = e.target.value.toLowerCase().trim();
 
-            // Make sure we're in the dashboard
             if (profileSelectionSection && !profileSelectionSection.classList.contains("hidden")) {
                 if (query.length > 0) {
                     profileSelectionSection.classList.add("hidden");
@@ -762,7 +796,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            // Show all rows when searching
             if (query.length > 0) {
                 mediaRowGroups.forEach(group => group.style.display = "block");
             }
@@ -834,4 +867,316 @@ document.addEventListener("DOMContentLoaded", () => {
             startRealNetflixIntro();
         });
     }
+
+    // ---------- Universal Media Player Engine ----------
+    const fallbackVideoPool = [
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackSeeTheWorld.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
+        "https://vjs.zencdn.net/v/oceans.mp4",
+        "https://media.w3.org/2010/05/sintel/trailer.mp4",
+        "https://media.w3.org/2010/05/bunny/movie.mp4",
+        "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+    ];
+
+    function getUniqueFallbackVideo(title) {
+        let hash = 0;
+        const str = title || "Netflix Media";
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const index = Math.abs(hash) % fallbackVideoPool.length;
+        return fallbackVideoPool[index];
+    }
+
+    function openMediaPlayerByTitle(title, customSrc, customEmbed) {
+        let item = window._mediaCatalog ? window._mediaCatalog.find(it => {
+            if (!it || !it.title) return false;
+            const t1 = it.title.toLowerCase();
+            const t2 = (title || "").toLowerCase();
+            return t1 === t2 || t1.includes(t2) || t2.includes(t1);
+        }) : null;
+
+        if (!item) {
+            item = {
+                title: title || "Featured Media Stream",
+                type: "movie",
+                embedUrl: customEmbed || "",
+                src: customSrc || getUniqueFallbackVideo(title),
+                badge: "NOW STREAMING • 4K ULTRA HD",
+                description: "Streaming in Ultra High Definition with Surround Sound."
+            };
+        } else {
+            if (customSrc) item.src = customSrc;
+            if (customEmbed) item.embedUrl = customEmbed;
+        }
+        openMediaPlayer(item);
+    }
+
+    function openMediaPlayer(item) {
+        if (!item) return;
+        stopNetflixAudio();
+
+        const modal = document.getElementById('media-player-modal');
+        const titleEl = document.getElementById('media-player-title');
+        const badgeEl = document.getElementById('media-player-badge');
+        const descEl = document.getElementById('media-player-desc');
+        const container = document.getElementById('media-player-container');
+        if (!modal || !container) return;
+
+        container.innerHTML = '';
+        if (titleEl) titleEl.textContent = item.title || "Media Stream";
+        if (badgeEl) badgeEl.textContent = item.badge || (item.type === 'song' ? 'NOW PLAYING • SOUNDTRACK' : 'NOW STREAMING • 4K ULTRA HD');
+        if (descEl) descEl.textContent = item.description || item.subtitle || "Streaming high quality audio and video.";
+
+        if (item.type === 'song') {
+            const audioWrapper = document.createElement('div');
+            audioWrapper.className = 'audio-player-card';
+            audioWrapper.innerHTML = `
+                <div class="vinyl-container">
+                    <div class="vinyl-record">
+                        <div class="vinyl-center">♫</div>
+                    </div>
+                </div>
+                <div class="music-eq-visualizer">
+                    <div class="music-eq-bar"></div>
+                    <div class="music-eq-bar"></div>
+                    <div class="music-eq-bar"></div>
+                    <div class="music-eq-bar"></div>
+                    <div class="music-eq-bar"></div>
+                    <div class="music-eq-bar"></div>
+                </div>
+                <audio src="${item.src}" controls autoplay></audio>
+            `;
+            container.appendChild(audioWrapper);
+            const audioEl = audioWrapper.querySelector('audio');
+            if (audioEl) audioEl.play().catch(e => console.log("Audio autoplay deferred:", e));
+        } else {
+            // Direct HTML5 Video Player with controls, source element & resilient error fallback
+            const video = document.createElement('video');
+            video.controls = true;
+            video.autoplay = true;
+            video.playsInline = true;
+            video.preload = "auto";
+            video.style.width = '100%';
+            video.style.maxHeight = '70vh';
+            video.style.borderRadius = '12px';
+
+            const videoSrc = item.src || getUniqueFallbackVideo(item.title);
+            
+            const source = document.createElement('source');
+            source.src = videoSrc;
+            source.type = 'video/mp4';
+            video.appendChild(source);
+
+            // Direct src fallback
+            video.src = videoSrc;
+
+            // Robust error listener: If external link fails to load/CORS, switch to reliable fallback stream
+            video.onerror = () => {
+                console.warn("Primary video stream failed/blocked, loading resilient fallback stream...");
+                const safeStream = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4";
+                if (video.src !== safeStream) {
+                    source.src = safeStream;
+                    video.src = safeStream;
+                    video.load();
+                    video.play().catch(e => console.log("Fallback stream play deferred:", e));
+                }
+            };
+
+            container.appendChild(video);
+
+            video.load();
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(e => console.log("Video autoplay deferred:", e));
+            }
+        }
+
+        modal.classList.remove('hidden');
+    }
+
+    function closeMediaPlayer() {
+        const modal = document.getElementById('media-player-modal');
+        const container = document.getElementById('media-player-container');
+        if (modal) modal.classList.add('hidden');
+        if (container) container.innerHTML = '';
+    }
+
+    document.getElementById('media-player-close')?.addEventListener('click', closeMediaPlayer);
+
+    // Local Video File Upload Handler
+    const inputLocalVideo = document.getElementById('input-local-video');
+    if (inputLocalVideo) {
+        inputLocalVideo.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const objectUrl = URL.createObjectURL(file);
+            openMediaPlayer({
+                title: file.name.replace(/\.[^/.]+$/, ""),
+                type: "movie",
+                src: objectUrl,
+                badge: "LOCAL MOVIE FILE • HIGH DEFINITION",
+                description: `Streaming local file: ${file.name} (${(file.size / (1024 * 1024)).toFixed(1)} MB)`
+            });
+        });
+    }
+
+    // Custom Video Link Paste Handler
+    const btnCustomUrl = document.getElementById('btn-custom-url');
+    if (btnCustomUrl) {
+        btnCustomUrl.addEventListener('click', () => {
+            const url = prompt("Enter custom Video URL or YouTube link to play:");
+            if (!url || !url.trim()) return;
+            let srcUrl = url.trim();
+            let embedUrl = "";
+            if (srcUrl.includes("youtube.com/watch?v=")) {
+                const vId = srcUrl.split("v=")[1].split("&")[0];
+                embedUrl = `https://www.youtube-nocookie.com/embed/${vId}?autoplay=1`;
+            } else if (srcUrl.includes("youtu.be/")) {
+                const vId = srcUrl.split("youtu.be/")[1].split("?")[0];
+                embedUrl = `https://www.youtube-nocookie.com/embed/${vId}?autoplay=1`;
+            }
+            openMediaPlayer({
+                title: "Custom Video Stream",
+                type: "movie",
+                embedUrl: embedUrl,
+                src: srcUrl,
+                badge: "CUSTOM STREAM • HD",
+                description: "Streaming user-provided video link."
+            });
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeMediaPlayer();
+            if (trailerModal) trailerModal.classList.add('hidden');
+            if (settingsModal) settingsModal.classList.add('hidden');
+            if (addProfileModal) addProfileModal.classList.add('hidden');
+        }
+    });
+
+    function setupMediaTriggerHandlers() {
+        document.querySelectorAll('.media-card, .media-trigger-btn').forEach(btn => {
+            if (btn._hasMediaListener) return;
+            btn._hasMediaListener = true;
+
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (isTransitioning) return;
+
+                const title = btn.getAttribute('data-title') || (btn.dataset ? btn.dataset.title : '');
+                const customSrc = btn.getAttribute('data-src') || (btn.dataset ? btn.dataset.src : '');
+                const customEmbed = btn.getAttribute('data-embed') || (btn.dataset ? btn.dataset.embedUrl : '');
+                const isMusic = btn.classList.contains('music-card') || (btn.dataset && btn.dataset.type === 'song');
+                const isPlayBtn = e.target.closest('.play-btn') || e.target.closest('.play-circle') || e.target.closest('.music-play-circle') || btn.classList.contains('btn-hero-play');
+
+                let item = window._mediaCatalog ? window._mediaCatalog.find(it => {
+                    if (!it || !it.title) return false;
+                    return it.title.toLowerCase() === title.toLowerCase();
+                }) : null;
+
+                if (!item) {
+                    item = {
+                        title: title || "Featured Media Stream",
+                        type: isMusic ? "song" : "movie",
+                        src: customSrc || getUniqueFallbackVideo(title),
+                        embedUrl: customEmbed || "",
+                        badge: btn.getAttribute('data-badge') || "98% MATCH • 4K ULTRA HD",
+                        description: btn.getAttribute('data-desc') || "Streaming in Ultra High Definition with Surround Sound."
+                    };
+                }
+
+                if (isPlayBtn || isMusic) {
+                    openMediaPlayer(item);
+                } else {
+                    openMediaDetailModal(item);
+                }
+            });
+        });
+    }
+
+    const FALLBACK_CATALOG = [
+        { "id": "stranger-things", "type": "movie", "category": "series", "title": "Stranger Things", "subtitle": "Season 5 • Netflix Original", "badge": "99% MATCH • 2026 • 4K ULTRA HD", "description": "The final chapter begins. Mysterious forces take over Hawkins as Eleven and the group unite for their ultimate battle.", "match": "99", "year": "2026", "maturity": "TV-MA", "seasons": "5 Seasons", "genres": ["Sci-Fi", "Horror", "Mystery"], "src": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" },
+        { "id": "oppenheimer", "type": "movie", "category": "trending", "title": "Oppenheimer", "subtitle": "Christopher Nolan Masterpiece", "badge": "99% MATCH • 2024 • IMAX 4K", "description": "The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.", "match": "99", "year": "2024", "maturity": "R", "seasons": "Movie", "genres": ["Biography", "Drama", "History"], "src": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4" },
+        { "id": "arcane", "type": "movie", "category": "anime", "title": "Arcane", "subtitle": "Season 2 • Riot Games", "badge": "100% MATCH • 2024 • HDR", "description": "Amid the stark discord of twin cities Piltover and Zaun, two sisters fight on opposing sides.", "match": "100", "year": "2024", "maturity": "TV-MA", "seasons": "2 Seasons", "genres": ["Anime", "Sci-Fi", "Action"], "src": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" },
+        { "id": "cyberpunk-edgerunners", "type": "movie", "category": "anime", "title": "Cyberpunk: Edgerunners", "subtitle": "Anime Series • Studio Trigger", "badge": "99% MATCH • 2024 • HDR", "description": "A street kid trying to survive in a technology and body modification-obsessed city of the future.", "match": "99", "year": "2024", "maturity": "TV-MA", "seasons": "1 Season", "genres": ["Cyberpunk", "Anime", "Action"], "src": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" },
+        { "id": "breaking-bad", "type": "movie", "category": "series", "title": "Breaking Bad", "subtitle": "All 5 Seasons • Drama", "badge": "99% MATCH • 2023 • 4K", "description": "A chemistry teacher turns to manufacturing methamphetamine.", "match": "99", "year": "2023", "maturity": "TV-MA", "seasons": "5 Seasons", "genres": ["Crime", "Drama"], "src": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" },
+        { "id": "wednesday", "type": "movie", "category": "series", "title": "Wednesday", "subtitle": "Season 2 • Fantasy", "badge": "98% MATCH • 2025 • 4K", "description": "Wednesday Addams investigates a murder spree while making new friends.", "match": "98", "year": "2025", "maturity": "TV-14", "seasons": "2 Seasons", "genres": ["Fantasy", "Mystery"], "src": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" },
+        { "id": "the-dark-knight", "type": "movie", "category": "movies", "title": "The Dark Knight", "subtitle": "Batman vs Joker", "badge": "99% MATCH • PG-13", "description": "Batman faces the Joker, a criminal mastermind who plunges Gotham City into chaos.", "match": "99", "year": "2008", "maturity": "PG-13", "seasons": "Movie", "genres": ["Action", "Crime"], "src": "https://media.w3.org/2010/05/bunny/movie.mp4" },
+        { "id": "inception", "type": "movie", "category": "movies", "title": "Inception", "subtitle": "Christopher Nolan Sci-Fi", "badge": "98% MATCH • PG-13", "description": "A thief steals corporate secrets through dream-sharing technology.", "match": "98", "year": "2010", "maturity": "PG-13", "seasons": "Movie", "genres": ["Sci-Fi", "Action"], "src": "https://media.w3.org/2010/05/sintel/trailer.mp4" }
+    ];
+
+    async function loadMediaData() {
+        try {
+            const resp = await fetch('mediaData.json');
+            if (!resp.ok) throw new Error("JSON fetch failed");
+            const data = await resp.json();
+            window._mediaCatalog = data;
+            populateMediaRows(data);
+        } catch (e) {
+            console.warn('Using embedded catalog fallback:', e);
+            window._mediaCatalog = FALLBACK_CATALOG;
+            populateMediaRows(FALLBACK_CATALOG);
+        }
+    }
+
+    function populateMediaRows(data) {
+        if (!data || !Array.isArray(data)) return;
+        data.forEach(item => {
+            const category = item.category || (item.type === 'movie' ? 'movies' : 'music');
+            let rowGroup = document.querySelector(`.media-row-group[data-category="${category}"]`);
+            if (!rowGroup) {
+                rowGroup = document.querySelector(`.media-row-group[data-category="${item.type === 'movie' ? 'movies' : 'music'}"]`);
+            }
+            if (!rowGroup) return;
+
+            const existing = rowGroup.querySelector(`[data-title="${item.title}"]`);
+            if (existing) {
+                existing.dataset.src = item.src;
+                return;
+            }
+
+            const card = document.createElement('div');
+            card.className = `media-card ${category}-card media-trigger-btn`;
+            card.dataset.title = item.title;
+            card.dataset.badge = item.badge || '';
+            card.dataset.desc = item.description || '';
+            card.dataset.match = item.match || '';
+            card.dataset.year = item.year || '';
+            card.dataset.maturity = item.maturity || '';
+            card.dataset.seasons = item.seasons || '';
+            card.dataset.genres = (item.genres || []).join(',');
+            card.dataset.src = item.src || '';
+            card.dataset.type = item.type || '';
+
+            const thumbClass = `${category}-thumb-${Math.floor(Math.random()*10)+1}`;
+            card.innerHTML = `
+                <div class="card-thumb ${thumbClass}">
+                    <div class="${category === 'movie' ? 'play-circle' : 'music-play-circle'}"></div>
+                </div>
+                <div class="card-info">
+                    <span class="card-name">${item.title}</span>
+                    <span class="card-sub">${item.subtitle || ''}</span>
+                </div>`;
+
+            const carousel = rowGroup.querySelector('.cards-carousel');
+            if (carousel) carousel.appendChild(card);
+        });
+
+        if (typeof injectHoverPreviews === 'function') injectHoverPreviews();
+        setupMediaTriggerHandlers();
+    }
+
+    loadMediaData();
 });
