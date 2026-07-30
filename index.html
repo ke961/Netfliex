@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Netflix Intro</title>
+    <meta name="description" content="Premium Netflix intro animation experience with full showcase dashboard">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -73,7 +74,7 @@
         </div>
     </div>
 
-    <!-- Media Detail Modal -->
+    <!-- Media Detail Modal (Enhanced) -->
     <div id="trailer-modal" class="modal-overlay hidden">
         <div class="trailer-modal-card">
             <button id="btn-close-trailer" class="btn-close-modal floating-close">&times;</button>
@@ -81,6 +82,13 @@
                 <div class="hero-overlay-content">
                     <span class="badge-tag" id="detail-badge">98% MATCH • 2026 • 4K ULTRA HD</span>
                     <h1 id="trailer-title">STRANGER THINGS</h1>
+                    <div class="detail-meta-row" id="detail-meta-row">
+                        <span class="detail-match" id="detail-match">98% Match</span>
+                        <span class="detail-year" id="detail-year">2026</span>
+                        <span class="detail-maturity" id="detail-maturity">TV-MA</span>
+                        <span class="detail-seasons" id="detail-seasons">5 Seasons</span>
+                        <span class="detail-quality">HD</span>
+                    </div>
                     <p id="trailer-desc">When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.</p>
                     <div class="trailer-actions">
                         <button class="btn-hero-play" id="btn-play-media">
@@ -89,8 +97,13 @@
                             </svg>
                             Play Now
                         </button>
-                        <button class="btn-hero-add">+ My List</button>
+                        <button class="btn-hero-add" id="btn-mylist-detail">+ My List</button>
                     </div>
+                    <div class="thumbs-row">
+                        <button class="thumb-btn" id="btn-thumb-up" title="I like this">👍</button>
+                        <button class="thumb-btn" id="btn-thumb-down" title="Not for me">👎</button>
+                    </div>
+                    <div class="detail-genre-tags" id="detail-genre-tags"></div>
                 </div>
             </div>
         </div>
@@ -218,9 +231,63 @@
                 <a href="#" class="nav-tab active" data-tab="all">All</a>
                 <a href="#" class="nav-tab" data-tab="movies">Movies</a>
                 <a href="#" class="nav-tab" data-tab="tv">TV Shows</a>
-                <a href="#" class="nav-tab" data-tab="music">Music & Soundtracks</a>
+                <a href="#" class="nav-tab" data-tab="anime">Anime</a>
+                <a href="#" class="nav-tab" data-tab="music">Music</a>
+                <a href="#" class="nav-tab" data-tab="mylist">My List</a>
             </nav>
             <div class="nav-actions">
+                <!-- Notification Bell -->
+                <div class="notification-wrapper">
+                    <button class="notification-btn" id="btn-notification">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                        </svg>
+                        <span class="notif-dot"></span>
+                    </button>
+                    <div class="notification-dropdown" id="notification-dropdown">
+                        <div class="notif-header">🔔 New on Netflix</div>
+                        <div class="notif-item">
+                            <div class="notif-thumb avatar-crimson-grad"></div>
+                            <div class="notif-content">
+                                <div class="notif-title">Stranger Things 5</div>
+                                <div class="notif-text">The final chapter is here. Watch now.</div>
+                                <div class="notif-time">2 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="notif-item">
+                            <div class="notif-thumb avatar-indigo-grad"></div>
+                            <div class="notif-content">
+                                <div class="notif-title">Arcane Season 2</div>
+                                <div class="notif-text">New episodes available. Continue watching.</div>
+                                <div class="notif-time">5 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="notif-item">
+                            <div class="notif-thumb avatar-amber-grad"></div>
+                            <div class="notif-content">
+                                <div class="notif-title">Dune: Part Two</div>
+                                <div class="notif-text">Now streaming in 4K Ultra HD + Dolby Atmos.</div>
+                                <div class="notif-time">1 day ago</div>
+                            </div>
+                        </div>
+                        <div class="notif-item">
+                            <div class="notif-thumb avatar-emerald-grad"></div>
+                            <div class="notif-content">
+                                <div class="notif-title">Squid Game Season 2</div>
+                                <div class="notif-text">The games continue. New season now available.</div>
+                                <div class="notif-time">2 days ago</div>
+                            </div>
+                        </div>
+                        <div class="notif-item">
+                            <div class="notif-thumb avatar-pink-grad"></div>
+                            <div class="notif-content">
+                                <div class="notif-title">Wednesday Season 2</div>
+                                <div class="notif-text">New mysteries await at Nevermore Academy.</div>
+                                <div class="notif-time">3 days ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <button id="btn-replay-nav" class="replay-nav-btn">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                         <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
@@ -229,6 +296,22 @@
                 </button>
             </div>
         </header>
+
+        <!-- Genre Pill Strip -->
+        <div class="genre-strip" id="genre-strip">
+            <button class="genre-pill active" data-genre="all">All Genres</button>
+            <button class="genre-pill" data-genre="action">Action</button>
+            <button class="genre-pill" data-genre="comedy">Comedy</button>
+            <button class="genre-pill" data-genre="drama">Drama</button>
+            <button class="genre-pill" data-genre="horror">Horror</button>
+            <button class="genre-pill" data-genre="sci-fi">Sci-Fi</button>
+            <button class="genre-pill" data-genre="thriller">Thriller</button>
+            <button class="genre-pill" data-genre="fantasy">Fantasy</button>
+            <button class="genre-pill" data-genre="mystery">Mystery</button>
+            <button class="genre-pill" data-genre="anime">Anime</button>
+            <button class="genre-pill" data-genre="romance">Romance</button>
+            <button class="genre-pill" data-genre="documentary">Documentary</button>
+        </div>
 
         <!-- "Who's Watching?" Profile Selector Section -->
         <section id="profile-selection-section" class="profiles-container">
@@ -275,13 +358,13 @@
                     <h1 class="featured-title">STRANGER THINGS 5</h1>
                     <p class="featured-desc">The final chapter begins. Mysterious forces take over Hawkins as Eleven and the group unite for their ultimate battle.</p>
                     <div class="featured-buttons">
-                        <button class="btn-hero-play media-trigger-btn" data-title="Stranger Things 5" data-badge="99% MATCH • 2026 • 4K ULTRA HD" data-desc="The final chapter begins. Mysterious forces take over Hawkins as Eleven and the group unite for their ultimate battle.">
+                        <button class="btn-hero-play media-trigger-btn" data-title="Stranger Things 5" data-badge="99% MATCH • 2026 • 4K ULTRA HD" data-desc="The final chapter begins. Mysterious forces take over Hawkins as Eleven and the group unite for their ultimate battle." data-match="99" data-year="2026" data-maturity="TV-MA" data-seasons="5 Seasons" data-genres="Sci-Fi,Horror,Drama,Thriller">
                             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                                 <path d="M8 5v14l11-7z"/>
                             </svg>
                             Play
                         </button>
-                        <button class="btn-hero-info media-trigger-btn" data-title="Stranger Things 5" data-badge="99% MATCH • 2026 • 4K ULTRA HD" data-desc="The final chapter begins. Mysterious forces take over Hawkins as Eleven and the group unite for their ultimate battle.">
+                        <button class="btn-hero-info media-trigger-btn" data-title="Stranger Things 5" data-badge="99% MATCH • 2026 • 4K ULTRA HD" data-desc="The final chapter begins. Mysterious forces take over Hawkins as Eleven and the group unite for their ultimate battle." data-match="99" data-year="2026" data-maturity="TV-MA" data-seasons="5 Seasons" data-genres="Sci-Fi,Horror,Drama,Thriller">
                             More Info
                         </button>
                     </div>
@@ -290,99 +373,383 @@
 
             <!-- Content Rows -->
             <div class="rows-container">
-                <!-- Row 1: Popular TV Shows -->
+
+                <!-- Row 0: Continue Watching -->
+                <div class="media-row-group" data-category="all">
+                    <h2 class="row-title">▶ Continue Watching for Primary</h2>
+                    <div class="cards-carousel">
+                        <div class="media-card continue-watching-card media-trigger-btn" data-title="Stranger Things" data-badge="99% MATCH • TV-MA • Sci-Fi" data-desc="When a young boy vanishes, a small town uncovers a mystery involving secret experiments and terrifying supernatural forces." data-match="99" data-year="2016–2025" data-maturity="TV-MA" data-seasons="5 Seasons" data-genres="Sci-Fi,Horror,Drama" data-progress="72">
+                            <div class="card-thumb" style="background-image: url('assets/stranger_things.png');">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill" style="width: 72%;"></div>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Stranger Things</span>
+                                <span class="continue-time">42m left</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card continue-watching-card media-trigger-btn" data-title="Cyberpunk: Edgerunners" data-badge="97% MATCH • TV-MA • Anime" data-desc="A street kid trying to survive in a technology and body modification-obsessed city of the future." data-match="97" data-year="2022" data-maturity="TV-MA" data-seasons="1 Season" data-genres="Anime,Action,Sci-Fi" data-progress="35">
+                            <div class="card-thumb" style="background-image: url('assets/cyberpunk.png');">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill" style="width: 35%;"></div>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Cyberpunk: Edgerunners</span>
+                                <span class="continue-time">16m left</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card continue-watching-card media-trigger-btn" data-title="Arcane" data-badge="98% MATCH • TV-14 • Anime" data-desc="Set in the utopian region of Piltover and the oppressed underground of Zaun, the story follows the origins of two iconic League of Legends champions." data-match="98" data-year="2021–2024" data-maturity="TV-14" data-seasons="2 Seasons" data-genres="Anime,Fantasy,Action,Drama" data-progress="58">
+                            <div class="card-thumb avatar-indigo-grad">
+                                <span class="card-placeholder-text">ARCANE</span>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill" style="width: 58%;"></div>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Arcane</span>
+                                <span class="continue-time">28m left</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card continue-watching-card media-trigger-btn" data-title="The Dark Knight" data-badge="99% MATCH • PG-13 • Action" data-desc="Batman faces the Joker, a criminal mastermind who plunges Gotham City into chaos." data-match="99" data-year="2008" data-maturity="PG-13" data-seasons="Movie" data-genres="Action,Crime,Drama,Thriller" data-progress="45">
+                            <div class="card-thumb avatar-dark-grad">
+                                <span class="card-placeholder-text">DARK KNIGHT</span>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill" style="width: 45%;"></div>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">The Dark Knight</span>
+                                <span class="continue-time">1h 12m left</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card continue-watching-card media-trigger-btn" data-title="Wednesday" data-badge="98% MATCH • TV-14 • Mystery" data-desc="Smart, sarcastic and a little dead inside, Wednesday Addams investigates a murder spree while making new friends." data-match="98" data-year="2022–2025" data-maturity="TV-14" data-seasons="2 Seasons" data-genres="Fantasy,Mystery,Comedy" data-progress="88">
+                            <div class="card-thumb avatar-purple-grad">
+                                <span class="card-placeholder-text">WEDNESDAY</span>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill" style="width: 88%;"></div>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Wednesday</span>
+                                <span class="continue-time">8m left</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 1: Top 10 in Your Country Today -->
+                <div class="media-row-group" data-category="tv">
+                    <h2 class="row-title">🏆 Top 10 in Your Country Today</h2>
+                    <div class="cards-carousel">
+                        <div class="media-card top10-card media-trigger-btn" data-title="Stranger Things 5" data-badge="99% MATCH • TV-MA • Sci-Fi" data-desc="The final chapter begins. Mysterious forces take over Hawkins as Eleven and the group unite for their ultimate battle." data-match="99" data-year="2026" data-maturity="TV-MA" data-seasons="5 Seasons" data-genres="Sci-Fi,Horror,Drama">
+                            <span class="top10-badge">1</span>
+                            <div class="card-thumb" style="background-image: url('assets/stranger_things.png');"></div>
+                            <div class="card-info">
+                                <span class="card-name">Stranger Things 5</span>
+                                <span class="card-sub"><span class="maturity-tag">TV-MA</span> Sci-Fi • Horror</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card top10-card media-trigger-btn" data-title="Squid Game" data-badge="98% MATCH • TV-MA • Thriller" data-desc="Hundreds of cash-strapped players accept a strange invitation to compete in children's games for a tempting prize, with deadly stakes." data-match="98" data-year="2021–2025" data-maturity="TV-MA" data-seasons="2 Seasons" data-genres="Thriller,Drama,Action">
+                            <span class="top10-badge">2</span>
+                            <div class="card-thumb avatar-emerald-grad">
+                                <span class="card-placeholder-text">SQUID GAME</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Squid Game</span>
+                                <span class="card-sub"><span class="maturity-tag">TV-MA</span> Thriller • Drama</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card top10-card media-trigger-btn" data-title="Wednesday" data-badge="98% MATCH • TV-14 • Mystery" data-desc="Smart, sarcastic and a little dead inside, Wednesday Addams investigates a murder spree while making new friends." data-match="98" data-year="2022–2025" data-maturity="TV-14" data-seasons="2 Seasons" data-genres="Fantasy,Mystery,Comedy">
+                            <span class="top10-badge">3</span>
+                            <div class="card-thumb avatar-purple-grad">
+                                <span class="card-placeholder-text">WEDNESDAY</span>
+                                <span class="new-badge">New Episodes</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Wednesday</span>
+                                <span class="card-sub"><span class="maturity-tag">TV-14</span> Fantasy • Mystery</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card top10-card media-trigger-btn" data-title="Black Mirror" data-badge="96% MATCH • TV-MA • Sci-Fi" data-desc="An anthology series exploring a twisted, high-tech multiverse where humanity's greatest innovations and darkest instincts collide." data-match="96" data-year="2011–2025" data-maturity="TV-MA" data-seasons="7 Seasons" data-genres="Sci-Fi,Thriller,Drama">
+                            <span class="top10-badge">4</span>
+                            <div class="card-thumb avatar-dark-grad">
+                                <span class="card-placeholder-text">BLACK MIRROR</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Black Mirror</span>
+                                <span class="card-sub"><span class="maturity-tag">TV-MA</span> Sci-Fi • Thriller</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card top10-card media-trigger-btn" data-title="Dune: Part Two" data-badge="97% MATCH • PG-13 • Sci-Fi" data-desc="Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family." data-match="97" data-year="2024" data-maturity="PG-13" data-seasons="Movie" data-genres="Sci-Fi,Action,Drama">
+                            <span class="top10-badge">5</span>
+                            <div class="card-thumb avatar-amber-grad">
+                                <span class="card-placeholder-text">DUNE II</span>
+                                <span class="new-badge">Recently Added</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Dune: Part Two</span>
+                                <span class="card-sub"><span class="maturity-tag">PG-13</span> Sci-Fi • Epic</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Popular TV Shows -->
                 <div class="media-row-group" data-category="tv">
                     <h2 class="row-title">Popular TV Shows</h2>
                     <div class="cards-carousel">
-                        <div class="media-card media-trigger-btn" data-title="Stranger Things" data-badge="99% MATCH • TV-MA • Sci-Fi" data-desc="When a young boy vanishes, a small town uncovers a mystery involving secret experiments and terrifying supernatural forces.">
+                        <div class="media-card media-trigger-btn" data-title="Stranger Things" data-badge="99% MATCH • TV-MA • Sci-Fi" data-desc="When a young boy vanishes, a small town uncovers a mystery involving secret experiments and terrifying supernatural forces." data-match="99" data-year="2016–2025" data-maturity="TV-MA" data-seasons="5 Seasons" data-genres="Sci-Fi,Horror,Drama">
                             <div class="card-thumb" style="background-image: url('assets/stranger_things.png');"></div>
                             <div class="card-info">
                                 <span class="card-name">Stranger Things</span>
-                                <span class="card-sub">Sci-Fi • Horror</span>
+                                <span class="card-sub"><span class="maturity-tag">TV-MA</span> Sci-Fi • Horror</span>
                             </div>
                         </div>
 
-                        <div class="media-card media-trigger-btn" data-title="Cyberpunk: Edgerunners" data-badge="97% MATCH • TV-MA • Anime" data-desc="A street kid trying to survive in a technology and body modification-obsessed city of the future.">
+                        <div class="media-card media-trigger-btn" data-title="Cyberpunk: Edgerunners" data-badge="97% MATCH • TV-MA • Anime" data-desc="A street kid trying to survive in a technology and body modification-obsessed city of the future." data-match="97" data-year="2022" data-maturity="TV-MA" data-seasons="1 Season" data-genres="Anime,Action,Sci-Fi">
                             <div class="card-thumb" style="background-image: url('assets/cyberpunk.png');"></div>
                             <div class="card-info">
                                 <span class="card-name">Cyberpunk: Edgerunners</span>
-                                <span class="card-sub">Anime • Action</span>
+                                <span class="card-sub"><span class="maturity-tag">TV-MA</span> Anime • Action</span>
                             </div>
                         </div>
 
-                        <div class="media-card media-trigger-btn" data-title="Wednesday" data-badge="98% MATCH • TV-14 • Mystery" data-desc="Smart, sarcastic and a little dead inside, Wednesday Addams investigates a murder spree while making new friends.">
+                        <div class="media-card media-trigger-btn" data-title="Wednesday" data-badge="98% MATCH • TV-14 • Mystery" data-desc="Smart, sarcastic and a little dead inside, Wednesday Addams investigates a murder spree while making new friends." data-match="98" data-year="2022–2025" data-maturity="TV-14" data-seasons="2 Seasons" data-genres="Fantasy,Mystery,Comedy">
                             <div class="card-thumb avatar-purple-grad">
                                 <span class="card-placeholder-text">WEDNESDAY</span>
                             </div>
                             <div class="card-info">
                                 <span class="card-name">Wednesday</span>
-                                <span class="card-sub">Fantasy • Mystery</span>
+                                <span class="card-sub"><span class="maturity-tag">TV-14</span> Fantasy • Mystery</span>
                             </div>
                         </div>
 
-                        <div class="media-card media-trigger-btn" data-title="The Witcher" data-badge="96% MATCH • TV-MA • Fantasy" data-desc="Geralt of Rivia, a mutated monster-hunter for hire, journeys toward his destiny in a turbulent world.">
+                        <div class="media-card media-trigger-btn" data-title="The Witcher" data-badge="96% MATCH • TV-MA • Fantasy" data-desc="Geralt of Rivia, a mutated monster-hunter for hire, journeys toward his destiny in a turbulent world." data-match="96" data-year="2019–2024" data-maturity="TV-MA" data-seasons="4 Seasons" data-genres="Fantasy,Action,Drama">
                             <div class="card-thumb avatar-dark-grad">
                                 <span class="card-placeholder-text">THE WITCHER</span>
                             </div>
                             <div class="card-info">
                                 <span class="card-name">The Witcher</span>
-                                <span class="card-sub">Fantasy • Action</span>
+                                <span class="card-sub"><span class="maturity-tag">TV-MA</span> Fantasy • Action</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="Squid Game" data-badge="98% MATCH • TV-MA • Thriller" data-desc="Hundreds of cash-strapped players accept a strange invitation to compete in children's games for a tempting prize, with deadly stakes." data-match="98" data-year="2021–2025" data-maturity="TV-MA" data-seasons="2 Seasons" data-genres="Thriller,Drama,Action">
+                            <div class="card-thumb avatar-emerald-grad">
+                                <span class="card-placeholder-text">SQUID GAME</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Squid Game</span>
+                                <span class="card-sub"><span class="maturity-tag">TV-MA</span> Thriller • Drama</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="Black Mirror" data-badge="96% MATCH • TV-MA • Sci-Fi" data-desc="An anthology series exploring a twisted, high-tech multiverse where humanity's greatest innovations and darkest instincts collide." data-match="96" data-year="2011–2025" data-maturity="TV-MA" data-seasons="7 Seasons" data-genres="Sci-Fi,Thriller,Drama">
+                            <div class="card-thumb avatar-dark-grad">
+                                <span class="card-placeholder-text">BLACK MIRROR</span>
+                                <span class="new-badge">New Season</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Black Mirror</span>
+                                <span class="card-sub"><span class="maturity-tag">TV-MA</span> Sci-Fi • Thriller</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Row 2: Trending Movies -->
+                <!-- Row 3: Trending Movies -->
                 <div class="media-row-group" data-category="movies">
                     <h2 class="row-title">Trending Movies</h2>
                     <div class="cards-carousel">
-                        <div class="media-card media-trigger-btn" data-title="Inception: Mind Heist" data-badge="98% MATCH • PG-13 • Sci-Fi" data-desc="A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea.">
+                        <div class="media-card media-trigger-btn" data-title="Inception" data-badge="98% MATCH • PG-13 • Sci-Fi" data-desc="A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O." data-match="98" data-year="2010" data-maturity="PG-13" data-seasons="Movie" data-genres="Sci-Fi,Thriller,Action">
                             <div class="card-thumb avatar-blue-grad">
                                 <span class="card-placeholder-text">INCEPTION</span>
                             </div>
                             <div class="card-info">
                                 <span class="card-name">Inception</span>
-                                <span class="card-sub">Sci-Fi • Thriller</span>
+                                <span class="card-sub"><span class="maturity-tag">PG-13</span> Sci-Fi • Thriller</span>
                             </div>
                         </div>
 
-                        <div class="media-card media-trigger-btn" data-title="Interstellar" data-badge="99% MATCH • PG-13 • Sci-Fi" data-desc="A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.">
+                        <div class="media-card media-trigger-btn" data-title="Interstellar" data-badge="99% MATCH • PG-13 • Sci-Fi" data-desc="A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival." data-match="99" data-year="2014" data-maturity="PG-13" data-seasons="Movie" data-genres="Sci-Fi,Adventure,Drama">
                             <div class="card-thumb avatar-cyan-grad">
                                 <span class="card-placeholder-text">INTERSTELLAR</span>
                             </div>
                             <div class="card-info">
                                 <span class="card-name">Interstellar</span>
-                                <span class="card-sub">Sci-Fi • Adventure</span>
+                                <span class="card-sub"><span class="maturity-tag">PG-13</span> Sci-Fi • Adventure</span>
                             </div>
                         </div>
 
-                        <div class="media-card media-trigger-btn" data-title="The Dark Knight" data-badge="99% MATCH • PG-13 • Action" data-desc="Batman faces the Joker, a criminal mastermind who plunges Gotham City into chaos.">
+                        <div class="media-card media-trigger-btn" data-title="The Dark Knight" data-badge="99% MATCH • PG-13 • Action" data-desc="Batman faces the Joker, a criminal mastermind who plunges Gotham City into chaos and challenges the Dark Knight." data-match="99" data-year="2008" data-maturity="PG-13" data-seasons="Movie" data-genres="Action,Crime,Drama,Thriller">
                             <div class="card-thumb avatar-dark-grad">
-                                <span class="card-placeholder-text">DARK KKNIGHT</span>
+                                <span class="card-placeholder-text">DARK KNIGHT</span>
                             </div>
                             <div class="card-info">
                                 <span class="card-name">The Dark Knight</span>
-                                <span class="card-sub">Action • Crime</span>
+                                <span class="card-sub"><span class="maturity-tag">PG-13</span> Action • Crime</span>
                             </div>
                         </div>
 
-                        <div class="media-card media-trigger-btn" data-title="Glass Onion" data-badge="95% MATCH • PG-13 • Mystery" data-desc="Famed detective Benoit Blanc travels to Greece to peel back the layers of a mystery involving a tech billionaire.">
+                        <div class="media-card media-trigger-btn" data-title="Oppenheimer" data-badge="97% MATCH • R • Drama" data-desc="The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb." data-match="97" data-year="2023" data-maturity="R" data-seasons="Movie" data-genres="Drama,History,Thriller">
+                            <div class="card-thumb avatar-scarlet-grad">
+                                <span class="card-placeholder-text">OPPENHEIMER</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Oppenheimer</span>
+                                <span class="card-sub"><span class="maturity-tag">R</span> Drama • History</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="Dune: Part Two" data-badge="97% MATCH • PG-13 • Sci-Fi" data-desc="Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family." data-match="97" data-year="2024" data-maturity="PG-13" data-seasons="Movie" data-genres="Sci-Fi,Action,Drama">
+                            <div class="card-thumb avatar-amber-grad">
+                                <span class="card-placeholder-text">DUNE II</span>
+                                <span class="new-badge">Recently Added</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Dune: Part Two</span>
+                                <span class="card-sub"><span class="maturity-tag">PG-13</span> Sci-Fi • Epic</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="Glass Onion" data-badge="95% MATCH • PG-13 • Mystery" data-desc="Famed detective Benoit Blanc travels to Greece to peel back the layers of a mystery involving a tech billionaire." data-match="95" data-year="2022" data-maturity="PG-13" data-seasons="Movie" data-genres="Mystery,Comedy,Crime">
                             <div class="card-thumb avatar-gold-grad">
                                 <span class="card-placeholder-text">GLASS ONION</span>
                             </div>
                             <div class="card-info">
                                 <span class="card-name">Glass Onion</span>
-                                <span class="card-sub">Comedy • Mystery</span>
+                                <span class="card-sub"><span class="maturity-tag">PG-13</span> Mystery • Comedy</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Row 3: Netflix Music & Official Soundtracks -->
+                <!-- Row 4: Award-Winning Films -->
+                <div class="media-row-group" data-category="movies">
+                    <h2 class="row-title">🏅 Award-Winning Films</h2>
+                    <div class="cards-carousel">
+                        <div class="media-card media-trigger-btn" data-title="Everything Everywhere All at Once" data-badge="98% MATCH • R • Sci-Fi" data-desc="An aging Chinese immigrant is swept up in an insane adventure, where she alone can save the world by exploring other universes connecting with the lives she could have led." data-match="98" data-year="2022" data-maturity="R" data-seasons="Movie" data-genres="Sci-Fi,Comedy,Action,Fantasy">
+                            <div class="card-thumb avatar-violet-grad">
+                                <span class="card-placeholder-text">EEAAO</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Everything Everywhere...</span>
+                                <span class="card-sub"><span class="maturity-tag">R</span> Sci-Fi • Comedy</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="Parasite" data-badge="99% MATCH • R • Thriller" data-desc="Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan." data-match="99" data-year="2019" data-maturity="R" data-seasons="Movie" data-genres="Thriller,Drama,Comedy">
+                            <div class="card-thumb avatar-teal-grad">
+                                <span class="card-placeholder-text">PARASITE</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Parasite</span>
+                                <span class="card-sub"><span class="maturity-tag">R</span> Thriller • Drama</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="The Batman" data-badge="96% MATCH • PG-13 • Action" data-desc="When a sadistic serial killer begins murdering key political figures in Gotham, Batman is forced to investigate the city's hidden corruption." data-match="96" data-year="2022" data-maturity="PG-13" data-seasons="Movie" data-genres="Action,Crime,Drama">
+                            <div class="card-thumb avatar-crimson-grad">
+                                <span class="card-placeholder-text">THE BATMAN</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">The Batman</span>
+                                <span class="card-sub"><span class="maturity-tag">PG-13</span> Action • Crime</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="Knives Out" data-badge="97% MATCH • PG-13 • Mystery" data-desc="A detective investigates the death of a patriarch of an eccentric, combative family." data-match="97" data-year="2019" data-maturity="PG-13" data-seasons="Movie" data-genres="Mystery,Comedy,Crime">
+                            <div class="card-thumb avatar-gold-grad">
+                                <span class="card-placeholder-text">KNIVES OUT</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Knives Out</span>
+                                <span class="card-sub"><span class="maturity-tag">PG-13</span> Mystery • Comedy</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="Oppenheimer" data-badge="97% MATCH • R • Drama" data-desc="The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb." data-match="97" data-year="2023" data-maturity="R" data-seasons="Movie" data-genres="Drama,History,Thriller">
+                            <div class="card-thumb avatar-scarlet-grad">
+                                <span class="card-placeholder-text">OPPENHEIMER</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Oppenheimer</span>
+                                <span class="card-sub"><span class="maturity-tag">R</span> Drama • History</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 5: Anime & Animation -->
+                <div class="media-row-group" data-category="anime">
+                    <h2 class="row-title">🎌 Anime & Animation</h2>
+                    <div class="cards-carousel">
+                        <div class="media-card media-trigger-btn" data-title="Arcane" data-badge="98% MATCH • TV-14 • Anime" data-desc="Set in the utopian region of Piltover and the oppressed underground of Zaun, the story follows the origins of two iconic League of Legends champions." data-match="98" data-year="2021–2024" data-maturity="TV-14" data-seasons="2 Seasons" data-genres="Anime,Fantasy,Action,Drama">
+                            <div class="card-thumb avatar-indigo-grad">
+                                <span class="card-placeholder-text">ARCANE</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Arcane</span>
+                                <span class="card-sub"><span class="maturity-tag">TV-14</span> Anime • Fantasy</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="Attack on Titan" data-badge="99% MATCH • TV-MA • Anime" data-desc="After his hometown is destroyed and his mother is killed, young Eren Jaeger vows to cleanse the earth of the giant humanoid Titans that have brought humanity to the brink of extinction." data-match="99" data-year="2013–2023" data-maturity="TV-MA" data-seasons="4 Seasons" data-genres="Anime,Action,Fantasy,Drama">
+                            <div class="card-thumb avatar-scarlet-grad">
+                                <span class="card-placeholder-text">ATTACK ON TITAN</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Attack on Titan</span>
+                                <span class="card-sub"><span class="maturity-tag">TV-MA</span> Anime • Action</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="Demon Slayer" data-badge="98% MATCH • TV-MA • Anime" data-desc="A young boy becomes a demon slayer after his family is slaughtered and his younger sister is turned into a demon." data-match="98" data-year="2019–2024" data-maturity="TV-MA" data-seasons="4 Seasons" data-genres="Anime,Action,Fantasy">
+                            <div class="card-thumb avatar-sunset-grad">
+                                <span class="card-placeholder-text">DEMON SLAYER</span>
+                                <span class="new-badge">New Season</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Demon Slayer</span>
+                                <span class="card-sub"><span class="maturity-tag">TV-MA</span> Anime • Action</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="One Piece" data-badge="97% MATCH • TV-14 • Anime" data-desc="Monkey D. Luffy sets off on an adventure with his pirate crew in hopes of finding the greatest treasure ever, known as 'One Piece'." data-match="97" data-year="1999–2025" data-maturity="TV-14" data-seasons="20+ Seasons" data-genres="Anime,Adventure,Action,Comedy">
+                            <div class="card-thumb avatar-deepblue-grad">
+                                <span class="card-placeholder-text">ONE PIECE</span>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">One Piece</span>
+                                <span class="card-sub"><span class="maturity-tag">TV-14</span> Anime • Adventure</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card media-trigger-btn" data-title="Cyberpunk: Edgerunners" data-badge="97% MATCH • TV-MA • Anime" data-desc="A street kid trying to survive in a technology and body modification-obsessed city of the future." data-match="97" data-year="2022" data-maturity="TV-MA" data-seasons="1 Season" data-genres="Anime,Action,Sci-Fi">
+                            <div class="card-thumb" style="background-image: url('assets/cyberpunk.png');"></div>
+                            <div class="card-info">
+                                <span class="card-name">Cyberpunk: Edgerunners</span>
+                                <span class="card-sub"><span class="maturity-tag">TV-MA</span> Anime • Action</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 6: Netflix Music & Official Soundtracks -->
                 <div class="media-row-group" data-category="music">
                     <h2 class="row-title">🎵 Netflix Music & Soundtracks</h2>
                     <div class="cards-carousel">
-                        <div class="media-card music-card media-trigger-btn" data-title="Stranger Things (Synthwave Theme)" data-badge="OFFICIAL SOUNDTRACK • 80s SYNTH" data-desc="Official retro synthwave theme song from Stranger Things OST.">
+                        <div class="media-card music-card media-trigger-btn" data-title="Stranger Things (Synthwave Theme)" data-badge="OFFICIAL SOUNDTRACK • 80s SYNTH" data-desc="Official retro synthwave theme song from Stranger Things OST." data-match="96" data-year="2016" data-maturity="—" data-seasons="OST" data-genres="Synthwave,Electronic,80s">
                             <div class="card-thumb music-thumb-1">
                                 <div class="music-play-circle">
                                     <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
@@ -396,7 +763,7 @@
                             </div>
                         </div>
 
-                        <div class="media-card music-card media-trigger-btn" data-title="I Really Want to Stay at Your House" data-badge="CYBERPUNK EDGERUNNERS OST" data-desc="Iconic emotional soundtrack from Cyberpunk Edgerunners.">
+                        <div class="media-card music-card media-trigger-btn" data-title="I Really Want to Stay at Your House" data-badge="CYBERPUNK EDGERUNNERS OST" data-desc="Iconic emotional soundtrack from Cyberpunk Edgerunners." data-match="95" data-year="2022" data-maturity="—" data-seasons="OST" data-genres="Pop,Indie,Emotional">
                             <div class="card-thumb music-thumb-2">
                                 <div class="music-play-circle">
                                     <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
@@ -410,7 +777,7 @@
                             </div>
                         </div>
 
-                        <div class="media-card music-card media-trigger-btn" data-title="Bridgerton (Classical Covers)" data-badge="BRIDGERTON OST • ORCHESTRAL" data-desc="Contemporary pop hits reimagined by classical string quartet.">
+                        <div class="media-card music-card media-trigger-btn" data-title="Bridgerton (Classical Covers)" data-badge="BRIDGERTON OST • ORCHESTRAL" data-desc="Contemporary pop hits reimagined by classical string quartet." data-match="93" data-year="2020" data-maturity="—" data-seasons="OST" data-genres="Classical,Orchestral,Pop">
                             <div class="card-thumb music-thumb-3">
                                 <div class="music-play-circle">
                                     <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
@@ -424,7 +791,7 @@
                             </div>
                         </div>
 
-                        <div class="media-card music-card media-trigger-btn" data-title="Squid Game (Pink Soldiers)" data-badge="SQUID GAME OST • ICONIC SCORE" data-desc="The spine-chilling iconic score from the global phenomenon Squid Game.">
+                        <div class="media-card music-card media-trigger-btn" data-title="Squid Game (Pink Soldiers)" data-badge="SQUID GAME OST • ICONIC SCORE" data-desc="The spine-chilling iconic score from the global phenomenon Squid Game." data-match="97" data-year="2021" data-maturity="—" data-seasons="OST" data-genres="Electronic,Score,Cinematic">
                             <div class="card-thumb music-thumb-4">
                                 <div class="music-play-circle">
                                     <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
@@ -437,8 +804,99 @@
                                 <span class="card-sub">Squid Game Original Score</span>
                             </div>
                         </div>
+
+                        <div class="media-card music-card media-trigger-btn" data-title="Wednesday Theme (Goo Goo Muck)" data-badge="WEDNESDAY OST • PUNK ROCK" data-desc="The iconic Cramps track that went viral from Wednesday's dance scene." data-match="94" data-year="2022" data-maturity="—" data-seasons="OST" data-genres="Punk,Rock,Gothic">
+                            <div class="card-thumb music-thumb-5">
+                                <div class="music-play-circle">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Goo Goo Muck</span>
+                                <span class="card-sub">Wednesday Dance OST</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card music-card media-trigger-btn" data-title="Bella Ciao (La Casa de Papel)" data-badge="MONEY HEIST OST • FOLK" data-desc="The Italian folk song that became the anthem of the global hit Money Heist." data-match="96" data-year="2017" data-maturity="—" data-seasons="OST" data-genres="Folk,Italian,Cinematic">
+                            <div class="card-thumb music-thumb-6">
+                                <div class="music-play-circle">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Bella Ciao</span>
+                                <span class="card-sub">Money Heist OST</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Row 7: Viral Hits from Netflix -->
+                <div class="media-row-group" data-category="music">
+                    <h2 class="row-title">🔥 Viral Hits from Netflix</h2>
+                    <div class="cards-carousel">
+                        <div class="media-card music-card media-trigger-btn" data-title="Running Up That Hill (Kate Bush)" data-badge="STRANGER THINGS S4 • POP REVIVAL" data-desc="Kate Bush's 1985 classic that became a global #1 hit after featuring in Stranger Things Season 4." data-match="99" data-year="1985/2022" data-maturity="—" data-seasons="Featured" data-genres="Pop,80s,Synth-Pop">
+                            <div class="card-thumb music-thumb-7">
+                                <div class="music-play-circle">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Running Up That Hill</span>
+                                <span class="card-sub">Kate Bush • ST S4</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card music-card media-trigger-btn" data-title="That's Life (Frank Sinatra)" data-badge="SQUID GAME • JAZZ CLASSIC" data-desc="Frank Sinatra's timeless classic featured prominently in Squid Game." data-match="94" data-year="1966/2021" data-maturity="—" data-seasons="Featured" data-genres="Jazz,Classic,Vocal">
+                            <div class="card-thumb music-thumb-8">
+                                <div class="music-play-circle">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">That's Life</span>
+                                <span class="card-sub">Frank Sinatra • Squid Game</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card music-card media-trigger-btn" data-title="Lacrimosa (Mozart)" data-badge="BRIDGERTON • CLASSICAL" data-desc="Mozart's hauntingly beautiful Lacrimosa reimagined for Bridgerton's dramatic moments." data-match="92" data-year="1791/2020" data-maturity="—" data-seasons="Featured" data-genres="Classical,Orchestral,Choral">
+                            <div class="card-thumb music-thumb-9">
+                                <div class="music-play-circle">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Lacrimosa</span>
+                                <span class="card-sub">Mozart • Bridgerton</span>
+                            </div>
+                        </div>
+
+                        <div class="media-card music-card media-trigger-btn" data-title="Eye of the Tiger (Survivor)" data-badge="COBRA KAI • ROCK ANTHEM" data-desc="The legendary rock anthem featured as the motivational backbone of Cobra Kai." data-match="95" data-year="1982/2018" data-maturity="—" data-seasons="Featured" data-genres="Rock,Classic,Motivational">
+                            <div class="card-thumb music-thumb-10">
+                                <div class="music-play-circle">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="card-info">
+                                <span class="card-name">Eye of the Tiger</span>
+                                <span class="card-sub">Survivor • Cobra Kai</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
     </div>
