@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NETFLIX INTRO & SHOWCASE DASHBOARD ENGINE
+   NETFLIX INTRO & SHOWCASE DASHBOARD ENGINE (ENHANCED)
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -40,13 +40,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const speedBtns = document.querySelectorAll(".speed-btn");
     const themeBtns = document.querySelectorAll(".theme-btn");
 
-    // Media Detail Modal
+    // Media Detail Modal (Enhanced)
     const trailerModal = document.getElementById("trailer-modal");
     const btnCloseTrailer = document.getElementById("btn-close-trailer");
     const trailerTitle = document.getElementById("trailer-title");
     const detailBadge = document.getElementById("detail-badge");
     const trailerDesc = document.getElementById("trailer-desc");
     const btnPlayMedia = document.getElementById("btn-play-media");
+    const detailMatch = document.getElementById("detail-match");
+    const detailYear = document.getElementById("detail-year");
+    const detailMaturity = document.getElementById("detail-maturity");
+    const detailSeasons = document.getElementById("detail-seasons");
+    const detailGenreTags = document.getElementById("detail-genre-tags");
+    const btnMylistDetail = document.getElementById("btn-mylist-detail");
+    const btnThumbUp = document.getElementById("btn-thumb-up");
+    const btnThumbDown = document.getElementById("btn-thumb-down");
 
     // Add Profile Modal
     const addProfileModal = document.getElementById("add-profile-modal");
@@ -55,6 +63,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnCreateProfile = document.getElementById("btn-create-profile");
     const inputProfileName = document.getElementById("input-profile-name");
     const avatarColorBtns = document.querySelectorAll(".avatar-color-btn");
+
+    // Notification
+    const btnNotification = document.getElementById("btn-notification");
+    const notificationDropdown = document.getElementById("notification-dropdown");
+
+    // Genre Strip
+    const genrePills = document.querySelectorAll(".genre-pill");
 
     // Search
     const inputSearch = document.getElementById("input-search");
@@ -71,6 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let activeTimers = [];
     let isSpectrumActive = false;
     let zoomStartTime = 0;
+    let currentDetailTitle = "";
 
     let config = {
         speed: "fast",
@@ -91,6 +107,77 @@ document.addEventListener("DOMContentLoaded", () => {
         gold: ["#FFB400", "#FFD700", "#FF8C00", "#E50914", "#FFFFFF"],
         emerald: ["#00E676", "#00C853", "#1DE9B6", "#00D2FF", "#FFFFFF"]
     };
+
+    // ---------- My List (localStorage) ----------
+    function getMyList() {
+        try {
+            return JSON.parse(localStorage.getItem("netflix_mylist")) || [];
+        } catch { return []; }
+    }
+
+    function saveMyList(list) {
+        localStorage.setItem("netflix_mylist", JSON.stringify(list));
+    }
+
+    function isInMyList(title) {
+        return getMyList().includes(title);
+    }
+
+    function toggleMyList(title) {
+        let list = getMyList();
+        if (list.includes(title)) {
+            list = list.filter(t => t !== title);
+        } else {
+            list.push(title);
+        }
+        saveMyList(list);
+        refreshMyListIndicators();
+        return list.includes(title);
+    }
+
+    function refreshMyListIndicators() {
+        document.querySelectorAll(".media-card[data-title]").forEach(card => {
+            const title = card.getAttribute("data-title");
+            if (isInMyList(title)) {
+                card.classList.add("in-mylist");
+            } else {
+                card.classList.remove("in-mylist");
+            }
+        });
+    }
+
+    // ---------- Thumbs (localStorage) ----------
+    function getThumbs() {
+        try {
+            return JSON.parse(localStorage.getItem("netflix_thumbs")) || {};
+        } catch { return {}; }
+    }
+
+    function saveThumbs(thumbs) {
+        localStorage.setItem("netflix_thumbs", JSON.stringify(thumbs));
+    }
+
+    function setThumb(title, direction) {
+        const thumbs = getThumbs();
+        if (thumbs[title] === direction) {
+            delete thumbs[title];
+        } else {
+            thumbs[title] = direction;
+        }
+        saveThumbs(thumbs);
+        return thumbs[title] || null;
+    }
+
+    function updateThumbButtons(title) {
+        const thumbs = getThumbs();
+        const state = thumbs[title] || null;
+        if (btnThumbUp) {
+            btnThumbUp.classList.toggle("active-up", state === "up");
+        }
+        if (btnThumbDown) {
+            btnThumbDown.classList.toggle("active-down", state === "down");
+        }
+    }
 
     // ---------- Canvas Sizing ----------
     function resizeCanvas() {
@@ -262,6 +349,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 mainApp.classList.remove("hidden");
                 mainApp.style.opacity = "1";
             }
+            refreshMyListIndicators();
+            injectHoverPreviews();
         }, 150);
     }
 
@@ -272,6 +361,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 const name = card.getAttribute("data-name") || "Primary";
                 if (profileSelectionSection) profileSelectionSection.classList.add("hidden");
                 if (showcaseDashboard) showcaseDashboard.classList.remove("hidden");
+                // Update continue watching title
+                const cwTitle = document.querySelector('.media-row-group[data-category="all"] .row-title');
+                if (cwTitle) cwTitle.textContent = `▶ Continue Watching for ${name}`;
+                refreshMyListIndicators();
+                injectHoverPreviews();
             });
         });
     }
@@ -290,6 +384,12 @@ document.addEventListener("DOMContentLoaded", () => {
             if (profileSelectionSection) profileSelectionSection.classList.add("hidden");
             if (showcaseDashboard) showcaseDashboard.classList.remove("hidden");
 
+            if (category === "mylist") {
+                // Show My List view
+                showMyListView();
+                return;
+            }
+
             mediaRowGroups.forEach(group => {
                 if (category === "all" || group.getAttribute("data-category") === category) {
                     group.style.display = "block";
@@ -297,25 +397,209 @@ document.addEventListener("DOMContentLoaded", () => {
                     group.style.display = "none";
                 }
             });
+
+            // Show all cards within visible groups
+            document.querySelectorAll(".media-card").forEach(card => {
+                card.style.display = "";
+            });
         });
     });
 
+    // ---------- My List View ----------
+    function showMyListView() {
+        const list = getMyList();
+        mediaRowGroups.forEach(group => group.style.display = "none");
+
+        // Check if mylist row exists, if not create it
+        let mylistRow = document.getElementById("mylist-row");
+        if (!mylistRow) {
+            mylistRow = document.createElement("div");
+            mylistRow.id = "mylist-row";
+            mylistRow.className = "media-row-group";
+            mylistRow.setAttribute("data-category", "mylist");
+            mylistRow.innerHTML = `<h2 class="row-title">📋 My List</h2><div class="cards-carousel" id="mylist-carousel"></div>`;
+            document.querySelector(".rows-container").appendChild(mylistRow);
+        }
+
+        mylistRow.style.display = "block";
+        const carousel = document.getElementById("mylist-carousel");
+        carousel.innerHTML = "";
+
+        if (list.length === 0) {
+            carousel.innerHTML = '<div style="color: #999; padding: 40px 0; font-size: 16px;">Your list is empty. Add movies and shows to see them here.</div>';
+            return;
+        }
+
+        // Clone matching cards into My List
+        document.querySelectorAll(".media-card[data-title]").forEach(card => {
+            const title = card.getAttribute("data-title");
+            if (list.includes(title) && !card.classList.contains("continue-watching-card")) {
+                const clone = card.cloneNode(true);
+                clone.classList.remove("top10-card");
+                const badge = clone.querySelector(".top10-badge");
+                if (badge) badge.remove();
+                carousel.appendChild(clone);
+            }
+        });
+
+        // Re-attach event handlers to cloned cards
+        setupMediaTriggerHandlers();
+        injectHoverPreviews();
+    }
+
+    // ---------- Genre Pill Filtering ----------
+    genrePills.forEach(pill => {
+        pill.addEventListener("click", () => {
+            genrePills.forEach(p => p.classList.remove("active"));
+            pill.classList.add("active");
+            const genre = pill.getAttribute("data-genre");
+
+            if (genre === "all") {
+                document.querySelectorAll(".media-card").forEach(card => {
+                    card.style.display = "";
+                });
+                return;
+            }
+
+            document.querySelectorAll(".media-card").forEach(card => {
+                const genres = (card.getAttribute("data-genres") || "").toLowerCase();
+                const title = (card.getAttribute("data-title") || "").toLowerCase();
+                if (genres.includes(genre) || title.includes(genre)) {
+                    card.style.display = "";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        });
+    });
+
+    // ---------- Notification Bell ----------
+    if (btnNotification) {
+        btnNotification.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (notificationDropdown) {
+                notificationDropdown.classList.toggle("show");
+            }
+        });
+    }
+
+    // Close notification dropdown on outside click
+    document.addEventListener("click", (e) => {
+        if (notificationDropdown && !notificationDropdown.contains(e.target) && e.target !== btnNotification) {
+            notificationDropdown.classList.remove("show");
+        }
+    });
+
+    // ---------- Card Hover Preview Injection ----------
+    function injectHoverPreviews() {
+        document.querySelectorAll(".media-card[data-title]").forEach(card => {
+            // Skip if already has preview or is music/continue-watching
+            if (card.querySelector(".card-hover-preview") || card.classList.contains("music-card") || card.classList.contains("continue-watching-card")) return;
+
+            const title = card.getAttribute("data-title") || "";
+            const match = card.getAttribute("data-match") || "95";
+            const maturity = card.getAttribute("data-maturity") || "";
+            const genres = (card.getAttribute("data-genres") || "").split(",").filter(Boolean);
+            const inList = isInMyList(title);
+
+            const preview = document.createElement("div");
+            preview.className = "card-hover-preview";
+            preview.innerHTML = `
+                <div class="preview-top-section">
+                    <div class="preview-buttons">
+                        <button class="preview-btn-circle play-btn" title="Play">▶</button>
+                        <button class="preview-btn-circle preview-mylist-btn ${inList ? 'in-list' : ''}" title="${inList ? 'Remove from My List' : 'Add to My List'}" data-title="${title}">${inList ? '✓' : '+'}</button>
+                        <button class="preview-btn-circle preview-like-btn" title="I like this" data-title="${title}">👍</button>
+                    </div>
+                    <div class="preview-meta-row">
+                        <span class="match-badge">${match}% Match</span>
+                        ${maturity ? `<span class="maturity-tag">${maturity}</span>` : ''}
+                    </div>
+                </div>
+                <div class="preview-genre-tags">
+                    ${genres.map(g => `<span class="preview-genre-tag">${g.trim()}</span>`).join("")}
+                </div>
+            `;
+
+            card.appendChild(preview);
+
+            // My List button in preview
+            const mylistBtn = preview.querySelector(".preview-mylist-btn");
+            if (mylistBtn) {
+                mylistBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    const t = mylistBtn.getAttribute("data-title");
+                    const nowInList = toggleMyList(t);
+                    mylistBtn.textContent = nowInList ? "✓" : "+";
+                    mylistBtn.classList.toggle("in-list", nowInList);
+                    mylistBtn.title = nowInList ? "Remove from My List" : "Add to My List";
+                });
+            }
+
+            // Like button in preview
+            const likeBtn = preview.querySelector(".preview-like-btn");
+            if (likeBtn) {
+                likeBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    const t = likeBtn.getAttribute("data-title");
+                    setThumb(t, "up");
+                });
+            }
+        });
+    }
+
     // ---------- Media Detail Modal Handlers ----------
-    function openMediaDetailModal(title, badge, desc) {
-        if (trailerTitle) trailerTitle.textContent = title || "STRANGER THINGS";
+    function openMediaDetailModal(title, badge, desc, match, year, maturity, seasons, genres) {
+        currentDetailTitle = title || "STRANGER THINGS";
+        if (trailerTitle) trailerTitle.textContent = currentDetailTitle;
         if (detailBadge) detailBadge.textContent = badge || "98% MATCH • 2026 • 4K ULTRA HD";
         if (trailerDesc) trailerDesc.textContent = desc || "Experience the mystery, action, and music.";
+        if (detailMatch) detailMatch.textContent = (match || "98") + "% Match";
+        if (detailYear) detailYear.textContent = year || "2026";
+        if (detailMaturity) detailMaturity.textContent = maturity || "TV-MA";
+        if (detailSeasons) detailSeasons.textContent = seasons || "1 Season";
+
+        // Genre tags
+        if (detailGenreTags) {
+            detailGenreTags.innerHTML = "";
+            const genreList = (genres || "").split(",").filter(Boolean);
+            genreList.forEach(g => {
+                const pill = document.createElement("span");
+                pill.className = "detail-genre-pill";
+                pill.textContent = g.trim();
+                detailGenreTags.appendChild(pill);
+            });
+        }
+
+        // My List button state
+        if (btnMylistDetail) {
+            const inList = isInMyList(currentDetailTitle);
+            btnMylistDetail.textContent = inList ? "✓ In My List" : "+ My List";
+        }
+
+        // Thumb buttons state
+        updateThumbButtons(currentDetailTitle);
+
         if (trailerModal) trailerModal.classList.remove("hidden");
     }
 
     function setupMediaTriggerHandlers() {
         document.querySelectorAll(".media-trigger-btn").forEach(btn => {
+            // Remove old listeners by cloning (only for non-clone elements)
+            if (btn._hasMediaListener) return;
+            btn._hasMediaListener = true;
+            
             btn.addEventListener("click", (e) => {
                 e.stopPropagation();
                 const title = btn.getAttribute("data-title");
                 const badge = btn.getAttribute("data-badge");
                 const desc = btn.getAttribute("data-desc");
-                openMediaDetailModal(title, badge, desc);
+                const match = btn.getAttribute("data-match");
+                const year = btn.getAttribute("data-year");
+                const maturity = btn.getAttribute("data-maturity");
+                const seasons = btn.getAttribute("data-seasons");
+                const genres = btn.getAttribute("data-genres");
+                openMediaDetailModal(title, badge, desc, match, year, maturity, seasons, genres);
             });
         });
     }
@@ -330,6 +614,29 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnPlayMedia) {
         btnPlayMedia.addEventListener("click", () => {
             alert("▶️ Now Streaming: " + (trailerTitle ? trailerTitle.textContent : "Media"));
+        });
+    }
+
+    // My List button in detail modal
+    if (btnMylistDetail) {
+        btnMylistDetail.addEventListener("click", () => {
+            const nowInList = toggleMyList(currentDetailTitle);
+            btnMylistDetail.textContent = nowInList ? "✓ In My List" : "+ My List";
+        });
+    }
+
+    // Thumb buttons in detail modal
+    if (btnThumbUp) {
+        btnThumbUp.addEventListener("click", () => {
+            setThumb(currentDetailTitle, "up");
+            updateThumbButtons(currentDetailTitle);
+        });
+    }
+
+    if (btnThumbDown) {
+        btnThumbDown.addEventListener("click", () => {
+            setThumb(currentDetailTitle, "down");
+            updateThumbButtons(currentDetailTitle);
         });
     }
 
@@ -428,6 +735,10 @@ document.addEventListener("DOMContentLoaded", () => {
             newCard.addEventListener("click", () => {
                 if (profileSelectionSection) profileSelectionSection.classList.add("hidden");
                 if (showcaseDashboard) showcaseDashboard.classList.remove("hidden");
+                const cwTitle = document.querySelector('.media-row-group[data-category="all"] .row-title');
+                if (cwTitle) cwTitle.textContent = `▶ Continue Watching for ${name}`;
+                refreshMyListIndicators();
+                injectHoverPreviews();
             });
 
             if (profileGrid && btnOpenAddProfile) {
@@ -442,12 +753,28 @@ document.addEventListener("DOMContentLoaded", () => {
     if (inputSearch) {
         inputSearch.addEventListener("input", (e) => {
             const query = e.target.value.toLowerCase().trim();
+
+            // Make sure we're in the dashboard
+            if (profileSelectionSection && !profileSelectionSection.classList.contains("hidden")) {
+                if (query.length > 0) {
+                    profileSelectionSection.classList.add("hidden");
+                    if (showcaseDashboard) showcaseDashboard.classList.remove("hidden");
+                }
+            }
+
+            // Show all rows when searching
+            if (query.length > 0) {
+                mediaRowGroups.forEach(group => group.style.display = "block");
+            }
+
             const cards = document.querySelectorAll(".media-card");
             cards.forEach(card => {
                 const title = (card.getAttribute("data-title") || "").toLowerCase();
                 const sub = card.querySelector(".card-sub") ? card.querySelector(".card-sub").textContent.toLowerCase() : "";
-                if (title.includes(query) || sub.includes(query)) {
-                    card.style.display = "block";
+                const genres = (card.getAttribute("data-genres") || "").toLowerCase();
+                const desc = (card.getAttribute("data-desc") || "").toLowerCase();
+                if (query === "" || title.includes(query) || sub.includes(query) || genres.includes(query) || desc.includes(query)) {
+                    card.style.display = "";
                 } else {
                     card.style.display = "none";
                 }
