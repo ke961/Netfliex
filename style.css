@@ -907,6 +907,512 @@ html, body {
     background: var(--netflix-red-bright);
 }
 
+/* ==========================================================================
+   8. CONTINUE WATCHING — PROGRESS BARS
+   ========================================================================== */
+.continue-watching-card .card-thumb {
+    position: relative;
+}
+
+.progress-bar-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: var(--netflix-red);
+    border-radius: 0 2px 2px 0;
+    transition: width 0.4s ease;
+}
+
+.continue-watching-card .card-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.continue-time {
+    font-size: 11px;
+    color: #999;
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   9. TOP 10 BADGES
+   ========================================================================== */
+.top10-card {
+    position: relative;
+    overflow: visible;
+}
+
+.top10-badge {
+    position: absolute;
+    left: -14px;
+    bottom: 40px;
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 3px var(--netflix-red);
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+    z-index: 5;
+    font-family: 'Inter', sans-serif;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   10. MATURITY RATING TAGS
+   ========================================================================== */
+.maturity-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 2px 6px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 3px;
+    color: #CCC;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+/* ==========================================================================
+   11. NEW EPISODES / RECENTLY ADDED BADGES
+   ========================================================================== */
+.new-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: #46D369;
+    color: #000;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    z-index: 5;
+}
+
+/* ==========================================================================
+   12. GENRE PILL STRIP
+   ========================================================================== */
+.genre-strip {
+    display: flex;
+    gap: 10px;
+    padding: 12px 50px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    background: rgba(20, 20, 20, 0.6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.genre-strip::-webkit-scrollbar { display: none; }
+
+.genre-pill {
+    flex-shrink: 0;
+    padding: 7px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #E5E5E5;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.genre-pill:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #FFF;
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+.genre-pill.active {
+    background: var(--netflix-red);
+    color: #FFF;
+    border-color: var(--netflix-red);
+}
+
+/* ==========================================================================
+   13. NOTIFICATION BELL
+   ========================================================================== */
+.notification-wrapper {
+    position: relative;
+}
+
+.notification-btn {
+    background: transparent;
+    border: none;
+    color: #E5E5E5;
+    cursor: pointer;
+    position: relative;
+    padding: 6px;
+    transition: color 0.2s ease;
+}
+
+.notification-btn:hover { color: #FFF; }
+
+.notif-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 8px;
+    height: 8px;
+    background: var(--netflix-red);
+    border-radius: 50%;
+    animation: notifPulse 2s ease infinite;
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: -40px;
+    width: 340px;
+    max-height: 400px;
+    overflow-y: auto;
+    background: rgba(20, 20, 20, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9);
+    z-index: 500;
+    display: none;
+}
+
+.notification-dropdown.show { display: block; }
+
+.notification-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 46px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid rgba(20, 20, 20, 0.98);
+}
+
+.notif-header {
+    padding: 14px 16px;
+    font-size: 15px;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: #FFF;
+}
+
+.notif-item {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.notif-item:hover { background: rgba(255, 255, 255, 0.06); }
+
+.notif-thumb {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
+}
+
+.notif-content { flex: 1; }
+
+.notif-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #FFF;
+    margin-bottom: 4px;
+}
+
+.notif-text {
+    font-size: 12px;
+    color: #999;
+    line-height: 1.4;
+}
+
+.notif-time {
+    font-size: 11px;
+    color: #666;
+    margin-top: 4px;
+}
+
+/* ==========================================================================
+   14. CARD HOVER PREVIEW PANEL
+   ========================================================================== */
+.media-card {
+    position: relative;
+}
+
+.card-hover-preview {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) scale(0.92) translateY(10px);
+    width: 300px;
+    background: #181818;
+    border-radius: 8px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+    padding-bottom: 12px;
+    overflow: hidden;
+}
+
+.media-card:hover .card-hover-preview {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) scale(1) translateY(-8px);
+}
+
+.preview-top-section {
+    padding: 14px 16px 10px;
+}
+
+.preview-buttons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.preview-btn-circle {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    background: transparent;
+    color: #FFF;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.preview-btn-circle:hover {
+    border-color: #FFF;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.preview-btn-circle.play-btn {
+    background: #FFF;
+    color: #000;
+    border-color: #FFF;
+}
+
+.preview-btn-circle.play-btn:hover {
+    background: #E0E0E0;
+}
+
+.preview-btn-circle.in-list {
+    color: #46D369;
+    border-color: #46D369;
+}
+
+.preview-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.match-badge {
+    color: #46D369;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.preview-genre-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 0 16px 4px;
+}
+
+.preview-genre-tag {
+    font-size: 11px;
+    color: #CCC;
+}
+
+.preview-genre-tag::before {
+    content: '•';
+    margin-right: 6px;
+    color: #555;
+}
+
+.preview-genre-tag:first-child::before { display: none; }
+
+/* ==========================================================================
+   15. THUMBS UP/DOWN & DETAIL ENHANCEMENTS
+   ========================================================================== */
+.detail-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.detail-match {
+    color: #46D369;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.detail-year, .detail-seasons {
+    color: #AAA;
+    font-size: 14px;
+}
+
+.detail-maturity {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #CCC;
+}
+
+.detail-quality {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1px 6px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #CCC;
+}
+
+.thumbs-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.thumb-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    background: transparent;
+    color: #FFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.2s ease;
+}
+
+.thumb-btn:hover {
+    border-color: #FFF;
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.thumb-btn.active-up {
+    background: rgba(70, 211, 105, 0.2);
+    border-color: #46D369;
+    color: #46D369;
+}
+
+.thumb-btn.active-down {
+    background: rgba(229, 9, 20, 0.2);
+    border-color: var(--netflix-red);
+    color: var(--netflix-red);
+}
+
+/* Detail Genre Tags */
+.detail-genre-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.detail-genre-pill {
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    font-size: 12px;
+    color: #CCC;
+}
+
+/* ==========================================================================
+   16. MY LIST INDICATOR
+   ========================================================================== */
+.mylist-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.7);
+    color: #46D369;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.media-card:hover .mylist-indicator,
+.media-card.in-mylist .mylist-indicator {
+    opacity: 1;
+}
+
+/* ==========================================================================
+   17. ADDITIONAL CARD GRADIENT THEMES
+   ========================================================================== */
+.avatar-crimson-grad { background: linear-gradient(135deg, #C62828, #880E4F); }
+.avatar-teal-grad { background: linear-gradient(135deg, #00695C, #004D40); }
+.avatar-indigo-grad { background: linear-gradient(135deg, #283593, #1A237E); }
+.avatar-amber-grad { background: linear-gradient(135deg, #FF8F00, #E65100); }
+.avatar-emerald-grad { background: linear-gradient(135deg, #2E7D32, #1B5E20); }
+.avatar-pink-grad { background: linear-gradient(135deg, #AD1457, #880E4F); }
+.avatar-deepblue-grad { background: linear-gradient(135deg, #0D47A1, #01579B); }
+.avatar-scarlet-grad { background: linear-gradient(135deg, #B71C1C, #4A0000); }
+.avatar-violet-grad { background: linear-gradient(135deg, #7B1FA2, #4A148C); }
+.avatar-sunset-grad { background: linear-gradient(135deg, #E65100, #BF360C); }
+
+/* Additional Music Themes */
+.music-thumb-5 { background: radial-gradient(circle, #2a0547 0%, #000 100%) !important; }
+.music-thumb-6 { background: radial-gradient(circle, #47050e 0%, #000 100%) !important; }
+.music-thumb-7 { background: radial-gradient(circle, #053547 0%, #000 100%) !important; }
+.music-thumb-8 { background: radial-gradient(circle, #1a3505 0%, #000 100%) !important; }
+.music-thumb-9 { background: radial-gradient(circle, #352a05 0%, #000 100%) !important; }
+.music-thumb-10 { background: radial-gradient(circle, #350524 0%, #000 100%) !important; }
+
+/* ==========================================================================
+   18. NAV ACTIONS ENHANCEMENTS
+   ========================================================================== */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
 /* Keyframe Animations */
 @keyframes revealSvgLeg {
     0% { transform: scale3d(1, 0, 1); opacity: 0; }
@@ -934,6 +1440,11 @@ html, body {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes notifPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.6; }
 }
 
 /* Responsive */
