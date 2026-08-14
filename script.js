@@ -1008,6 +1008,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         c.style.display = "";
                     } else if (filter === "tv" && (category === "series" || category === "tv")) {
                         c.style.display = "";
+                    } else if (filter === "kdrama" && category === "kdrama") {
+                        c.style.display = "";
                     } else if (filter === "anime" && category === "anime") {
                         c.style.display = "";
                     } else if (filter === "music" && (type === "song" || category === "music")) {
