@@ -106,7 +106,10 @@ document.addEventListener("DOMContentLoaded", () => {
         red: ["#E50914", "#FF1E27", "#B81D24", "#D80073", "#A200FF", "#00D2FF", "#FFFFFF"],
         cyber: ["#00D2FF", "#00A4EF", "#0055FF", "#00E676", "#FF007F", "#FFFFFF"],
         gold: ["#FFB400", "#FFD700", "#FF8C00", "#E50914", "#FFFFFF"],
-        emerald: ["#00E676", "#00C853", "#1DE9B6", "#00D2FF", "#FFFFFF"]
+        emerald: ["#00E676", "#00C853", "#1DE9B6", "#00D2FF", "#FFFFFF"],
+        vapor: ["#FF007F", "#7928CA", "#00DFD8", "#FF0080", "#FFFFFF"],
+        crimson: ["#990000", "#CC0000", "#660000", "#E50914", "#FFFFFF"],
+        violet: ["#A200FF", "#7928CA", "#00D2FF", "#FF007F", "#FFFFFF"]
     };
 
     // ---------- My List (localStorage) ----------
@@ -781,6 +784,93 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (addProfileModal) addProfileModal.classList.add("hidden");
+        });
+    }
+
+    // ---------- Category Navigation Tabs ----------
+    navTabs.forEach(tab => {
+        tab.addEventListener("click", (e) => {
+            e.preventDefault();
+            navTabs.forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+            const filter = tab.getAttribute("data-tab") || "all";
+
+            if (profileSelectionSection && !profileSelectionSection.classList.contains("hidden")) {
+                profileSelectionSection.classList.add("hidden");
+                if (showcaseDashboard) showcaseDashboard.classList.remove("hidden");
+            }
+
+            const rowGroups = document.querySelectorAll(".media-row-group");
+            const cards = document.querySelectorAll(".media-card");
+
+            if (filter === "all") {
+                rowGroups.forEach(g => g.style.display = "block");
+                cards.forEach(c => c.style.display = "");
+            } else if (filter === "mylist") {
+                const myList = getMyList();
+                rowGroups.forEach(g => g.style.display = "block");
+                cards.forEach(c => {
+                    const title = c.getAttribute("data-title");
+                    if (myList.includes(title)) {
+                        c.style.display = "";
+                    } else {
+                        c.style.display = "none";
+                    }
+                });
+            } else {
+                rowGroups.forEach(g => {
+                    const cat = g.getAttribute("data-category");
+                    if (cat === filter || (filter === "movies" && cat === "trending") || (filter === "tv" && cat === "series")) {
+                        g.style.display = "block";
+                    } else {
+                        g.style.display = "none";
+                    }
+                });
+                cards.forEach(c => {
+                    const type = c.getAttribute("data-type") || "";
+                    const category = c.getAttribute("data-category") || "";
+                    if (filter === "movies" && (type === "movie" || category === "movies" || category === "trending")) {
+                        c.style.display = "";
+                    } else if (filter === "tv" && (category === "series" || category === "tv")) {
+                        c.style.display = "";
+                    } else if (filter === "anime" && category === "anime") {
+                        c.style.display = "";
+                    } else if (filter === "music" && (type === "song" || category === "music")) {
+                        c.style.display = "";
+                    } else {
+                        c.style.display = "";
+                    }
+                });
+            }
+        });
+    });
+
+    // ---------- Genre Pill Filter ----------
+    if (genrePills) {
+        genrePills.forEach(pill => {
+            pill.addEventListener("click", () => {
+                genrePills.forEach(p => p.classList.remove("active"));
+                pill.classList.add("active");
+                const genre = (pill.getAttribute("data-genre") || "all").toLowerCase();
+
+                const cards = document.querySelectorAll(".media-card");
+                const rowGroups = document.querySelectorAll(".media-row-group");
+
+                if (genre === "all") {
+                    rowGroups.forEach(g => g.style.display = "block");
+                    cards.forEach(c => c.style.display = "");
+                } else {
+                    rowGroups.forEach(g => g.style.display = "block");
+                    cards.forEach(c => {
+                        const genres = (c.getAttribute("data-genres") || "").toLowerCase();
+                        if (genres.includes(genre)) {
+                            c.style.display = "";
+                        } else {
+                            c.style.display = "none";
+                        }
+                    });
+                }
+            });
         });
     }
 
