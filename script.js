@@ -1505,10 +1505,12 @@ document.addEventListener("DOMContentLoaded", () => {
             card.dataset.src = item.src || '';
             card.dataset.type = item.type || '';
 
+            const thumbStyle = item.poster ? `style="background-image: url('${item.poster}'); background-size: cover; background-position: center;"` : '';
             const thumbClass = `${category}-thumb-${Math.floor(Math.random()*10)+1}`;
             card.innerHTML = `
-                <div class="card-thumb ${thumbClass}">
-                    <div class="${category === 'movie' ? 'play-circle' : 'music-play-circle'}"></div>
+                <div class="card-thumb ${thumbClass}" ${thumbStyle}>
+                    ${item.poster ? '' : `<span class="card-placeholder-text">${item.title.toUpperCase()}</span>`}
+                    <div class="${category === 'movie' || category === 'kdrama' ? 'play-circle' : 'music-play-circle'}"></div>
                 </div>
                 <div class="card-info">
                     <span class="card-name">${item.title}</span>

@@ -840,6 +840,18 @@ html, body {
 .avatar-violet-grad { background: linear-gradient(135deg, #7B1FA2, #4A148C); }
 .avatar-sunset-grad { background: linear-gradient(135deg, #E65100, #BF360C); }
 
+/* K-Drama Poster Fallback Gradients */
+.kdrama-thumb-1 { background: linear-gradient(135deg, #1f0406, #7a0c16); }
+.kdrama-thumb-2 { background: linear-gradient(135deg, #0b1d3a, #030814); }
+.kdrama-thumb-3 { background: linear-gradient(135deg, #2b1100, #662600); }
+.kdrama-thumb-4 { background: linear-gradient(135deg, #180026, #46006e); }
+.kdrama-thumb-5 { background: linear-gradient(135deg, #022b22, #005443); }
+.kdrama-thumb-6 { background: linear-gradient(135deg, #38000f, #820023); }
+.kdrama-thumb-7 { background: linear-gradient(135deg, #111111, #333333); }
+.kdrama-thumb-8 { background: linear-gradient(135deg, #2a0845, #6441a5); }
+.kdrama-thumb-9 { background: linear-gradient(135deg, #1d4350, #a43931); }
+.kdrama-thumb-10 { background: linear-gradient(135deg, #0f2027, #2c5364); }
+
 /* ==========================================================================
    8. CONTINUE WATCHING — PROGRESS BARS
    ========================================================================== */
