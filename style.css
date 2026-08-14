@@ -1502,3 +1502,26 @@ html, body {
     border-radius: 30px;
     filter: invert(0.9) hue-rotate(170deg);
 }
+
+/* Theme Option Badges & Polish */
+.theme-btn[data-theme="vapor"] { background: linear-gradient(135deg, #FF007F, #00DFD8) !important; }
+.theme-btn[data-theme="crimson"] { background: linear-gradient(135deg, #990000, #E50914) !important; }
+.theme-btn[data-theme="violet"] { background: linear-gradient(135deg, #A200FF, #7928CA) !important; }
+
+/* Enhanced Poster & Card Hover Animations */
+.media-card {
+    transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.3s ease;
+}
+.media-card:hover {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.8), 0 0 15px rgba(229, 9, 20, 0.4);
+}
+.genre-pill.active {
+    background: var(--netflix-red);
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(229, 9, 20, 0.5);
+}
+.nav-tab.active {
+    color: #ffffff;
+    font-weight: 700;
+    border-bottom: 2px solid var(--netflix-red);
+}
