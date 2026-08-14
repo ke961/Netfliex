@@ -127,16 +127,34 @@ document.addEventListener("DOMContentLoaded", () => {
         return getMyList().includes(title);
     }
 
+    // ---------- Toast Notifications System ----------
+    function showNetflixToast(msg) {
+        const container = document.getElementById("toast-container");
+        if (!container) return;
+        const toast = document.createElement("div");
+        toast.className = "netflix-toast";
+        toast.innerHTML = `<span style="font-size:16px;">🔥</span><span>${msg}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add("fade-out");
+            setTimeout(() => toast.remove(), 300);
+        }, 2800);
+    }
+
     function toggleMyList(title) {
         let list = getMyList();
+        let inList = false;
         if (list.includes(title)) {
             list = list.filter(t => t !== title);
+            showNetflixToast(`Removed "${title}" from My List`);
         } else {
             list.push(title);
+            inList = true;
+            showNetflixToast(`Added "${title}" to My List`);
         }
         saveMyList(list);
         refreshMyListIndicators();
-        return list.includes(title);
+        return inList;
     }
 
     function refreshMyListIndicators() {
@@ -165,8 +183,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const thumbs = getThumbs();
         if (thumbs[title] === direction) {
             delete thumbs[title];
+            showNetflixToast(`Feedback removed for "${title}"`);
         } else {
             thumbs[title] = direction;
+            showNetflixToast(direction === "up" ? `Liked "${title}" 👍` : `Disliked "${title}" 👎`);
         }
         saveThumbs(thumbs);
         return thumbs[title] || null;
@@ -362,14 +382,43 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 150);
     }
 
+    // ---------- Header Profile Switcher Dropdown ----------
+    const btnHeaderProfile = document.getElementById("btn-header-profile");
+    const headerProfileDropdown = document.getElementById("header-profile-dropdown");
+    const headerProfileAvatar = document.getElementById("header-profile-avatar");
+
+    if (btnHeaderProfile && headerProfileDropdown) {
+        btnHeaderProfile.addEventListener("click", (e) => {
+            e.stopPropagation();
+            headerProfileDropdown.classList.toggle("show");
+        });
+
+        document.addEventListener("click", (e) => {
+            if (headerProfileDropdown && !headerProfileDropdown.contains(e.target) && e.target !== btnHeaderProfile) {
+                headerProfileDropdown.classList.remove("show");
+            }
+        });
+
+        document.querySelectorAll("[data-switch-profile]").forEach(item => {
+            item.addEventListener("click", () => {
+                const profileName = item.getAttribute("data-switch-profile");
+                if (headerProfileAvatar) headerProfileAvatar.textContent = profileName.charAt(0);
+                const cwTitle = document.querySelector('.media-row-group[data-category="all"] .row-title');
+                if (cwTitle) cwTitle.textContent = `▶ Continue Watching for ${profileName}`;
+                headerProfileDropdown.classList.remove("show");
+                showNetflixToast(`Switched profile to ${profileName}`);
+            });
+        });
+    }
+
     // ---------- Profile Click -> Enter Showcase Dashboard ----------
     function setupProfileClickHandlers() {
         document.querySelectorAll(".profile-card:not(.add)").forEach(card => {
             card.addEventListener("click", () => {
                 const name = card.getAttribute("data-name") || "Primary";
+                if (headerProfileAvatar) headerProfileAvatar.textContent = name.charAt(0);
                 if (profileSelectionSection) profileSelectionSection.classList.add("hidden");
                 if (showcaseDashboard) showcaseDashboard.classList.remove("hidden");
-                // Update continue watching title
                 const cwTitle = document.querySelector('.media-row-group[data-category="all"] .row-title');
                 if (cwTitle) cwTitle.textContent = `▶ Continue Watching for ${name}`;
                 refreshMyListIndicators();
@@ -600,16 +649,66 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
-        // My List button state
-        if (btnMylistDetail) {
-            const inList = isInMyList(currentDetailTitle);
-            btnMylistDetail.textContent = inList ? "✓ In My List" : "+ My List";
-        }
-
-        // Thumb buttons state
-        updateThumbButtons(currentDetailTitle);
+        // Episode & Season Rendering
+        renderEpisodesSection(item);
 
         if (trailerModal) trailerModal.classList.remove("hidden");
+    }
+
+    function renderEpisodesSection(item) {
+        const epSection = document.getElementById("episodes-section");
+        const epContainer = document.getElementById("episodes-container");
+        const seasonSelect = document.getElementById("season-select");
+        if (!epSection || !epContainer) return;
+
+        epSection.classList.remove("hidden");
+        epContainer.innerHTML = "";
+
+        const numSeasons = parseInt(item.seasons) || 1;
+        if (seasonSelect) {
+            seasonSelect.innerHTML = "";
+            for (let i = 1; i <= Math.max(numSeasons, 1); i++) {
+                const opt = document.createElement("option");
+                opt.value = i;
+                opt.textContent = `Season ${i}`;
+                seasonSelect.appendChild(opt);
+            }
+        }
+
+        const episodes = (item.episodes && item.episodes.length > 0) ? item.episodes : [
+            { number: 1, title: `${item.title} - Episode 1`, duration: "52m", desc: item.description || "Episode narrative begins.", src: item.src },
+            { number: 2, title: `${item.title} - Episode 2`, duration: "48m", desc: "Tensions rise as unexpected events unfold.", src: item.src },
+            { number: 3, title: `${item.title} - Episode 3`, duration: "55m", desc: "A desperate race against time develops.", src: item.src }
+        ];
+
+        episodes.forEach(ep => {
+            const card = document.createElement("div");
+            card.className = "episode-card";
+            card.innerHTML = `
+                <div class="episode-num">${ep.number}</div>
+                <div class="episode-thumb-box">
+                    <div class="episode-play-icon">▶</div>
+                </div>
+                <div class="episode-info-box">
+                    <div class="episode-title-row">
+                        <span class="episode-title">${ep.title}</span>
+                        <span class="episode-duration">${ep.duration || '50m'}</span>
+                    </div>
+                    <div class="episode-desc">${ep.desc || ep.description || 'Full episode streaming available.'}</div>
+                </div>
+            `;
+            card.addEventListener("click", () => {
+                if (trailerModal) trailerModal.classList.add("hidden");
+                openMediaPlayer({
+                    title: `${item.title} • E${ep.number}: ${ep.title}`,
+                    type: "movie",
+                    src: ep.src || item.src,
+                    badge: `${item.title} • SEASON 1 EPISODE ${ep.number}`,
+                    description: ep.desc || item.description
+                });
+            });
+            epContainer.appendChild(card);
+        });
     }
 
     if (btnCloseTrailer) {
@@ -629,29 +728,105 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Hero Billboard Carousel Data & Controller
+    const HERO_SLIDES = [
+        {
+            title: "Stranger Things 5",
+            badge: "🔥 #1 IN SHOWS TODAY",
+            desc: "The final chapter begins. Mysterious forces take over Hawkins as Eleven and the group unite for their ultimate battle.",
+            bg: "assets/stranger_things.png"
+        },
+        {
+            title: "Squid Game",
+            badge: "🏆 TOP 10 WORLDWIDE",
+            desc: "Gi-hun returns with a mission to unmask the sinister organization behind the deadly games once and for all.",
+            bg: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerMeltdowns.jpg"
+        },
+        {
+            title: "Dune: Part Two",
+            badge: "🎬 CINEMATIC BLOCKBUSTER",
+            desc: "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.",
+            bg: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/SubaruOutbackSeeTheWorld.jpg"
+        },
+        {
+            title: "Arcane",
+            badge: "✨ CRITICALLY ACCLAIMED",
+            desc: "Amid the stark discord of twin cities Piltover and Zaun, two sisters fight on opposing sides of a war between magic and technology.",
+            bg: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg"
+        },
+        {
+            title: "Oppenheimer",
+            badge: "🏅 7 ACADEMY AWARDS WINNER",
+            desc: "The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb during World War II.",
+            bg: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/Sintel.jpg"
+        }
+    ];
+
+    let currentHeroIdx = 0;
+    let heroTimer = null;
+
+    function setHeroSlide(idx) {
+        if (idx < 0 || idx >= HERO_SLIDES.length) return;
+        currentHeroIdx = idx;
+        const slide = HERO_SLIDES[idx];
+
+        const bgEl = document.getElementById("hero-bg-image");
+        const titleEl = document.getElementById("hero-title");
+        const badgeTagEl = document.getElementById("hero-badge-tag");
+        const descEl = document.getElementById("hero-desc");
+        const playBtn = document.getElementById("btn-hero-play-main");
+        const infoBtn = document.getElementById("btn-hero-info-main");
+
+        if (bgEl && slide.bg) {
+            bgEl.style.backgroundImage = `url('${slide.bg}')`;
+        }
+        if (titleEl) titleEl.textContent = slide.title.toUpperCase();
+        if (badgeTagEl) badgeTagEl.textContent = slide.badge;
+        if (descEl) descEl.textContent = slide.desc;
+        if (playBtn) playBtn.setAttribute("data-title", slide.title);
+        if (infoBtn) infoBtn.setAttribute("data-title", slide.title);
+
+        document.querySelectorAll(".hero-dot").forEach((dot, i) => {
+            dot.classList.toggle("active", i === idx);
+        });
+    }
+
+    function initHeroCarousel() {
+        document.querySelectorAll(".hero-dot").forEach((dot, i) => {
+            dot.addEventListener("click", () => {
+                setHeroSlide(i);
+                resetHeroTimer();
+            });
+        });
+        resetHeroTimer();
+    }
+
+    function resetHeroTimer() {
+        if (heroTimer) clearInterval(heroTimer);
+        heroTimer = setInterval(() => {
+            const next = (currentHeroIdx + 1) % HERO_SLIDES.length;
+            setHeroSlide(next);
+        }, 7000);
+    }
+    initHeroCarousel();
+
     // Hero Play button listener
     const heroPlayBtn = document.getElementById("btn-hero-play-main") || document.querySelector(".featured-hero .btn-hero-play");
     if (heroPlayBtn) {
         heroPlayBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-            openMediaPlayerByTitle("Stranger Things");
+            const t = heroPlayBtn.getAttribute("data-title") || "Stranger Things";
+            openMediaPlayerByTitle(t);
         });
     }
 
     // Hero Info button listener
-    const heroInfoBtn = document.querySelector(".btn-hero-info");
+    const heroInfoBtn = document.getElementById("btn-hero-info-main") || document.querySelector(".btn-hero-info");
     if (heroInfoBtn) {
         heroInfoBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-            const title = heroInfoBtn.getAttribute("data-title") || "Stranger Things";
-            const badge = heroInfoBtn.getAttribute("data-badge");
-            const desc = heroInfoBtn.getAttribute("data-desc");
-            const match = heroInfoBtn.getAttribute("data-match");
-            const year = heroInfoBtn.getAttribute("data-year");
-            const maturity = heroInfoBtn.getAttribute("data-maturity");
-            const seasons = heroInfoBtn.getAttribute("data-seasons");
-            const genres = heroInfoBtn.getAttribute("data-genres");
-            openMediaDetailModal(title, badge, desc, match, year, maturity, seasons, genres);
+            const t = heroInfoBtn.getAttribute("data-title") || "Stranger Things";
+            openMediaDetailModal(t);
         });
     }
 
@@ -1116,6 +1291,52 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         modal.classList.remove('hidden');
+    }
+
+    // Player Settings Popup & Playback Speed Controls
+    const btnPlayerSettings = document.getElementById("btn-player-settings");
+    const playerSettingsPopup = document.getElementById("player-settings-popup");
+    const btnPlayerSpeed = document.getElementById("btn-player-speed");
+
+    const speedOptions = [1.0, 1.25, 1.5, 2.0, 0.5];
+    let currentSpeedIdx = 0;
+
+    if (btnPlayerSettings && playerSettingsPopup) {
+        btnPlayerSettings.addEventListener("click", (e) => {
+            e.stopPropagation();
+            playerSettingsPopup.classList.toggle("hidden");
+        });
+
+        document.addEventListener("click", (e) => {
+            if (playerSettingsPopup && !playerSettingsPopup.contains(e.target) && e.target !== btnPlayerSettings) {
+                playerSettingsPopup.classList.add("hidden");
+            }
+        });
+
+        document.querySelectorAll("input[name='audio-track']").forEach(radio => {
+            radio.addEventListener("change", (e) => {
+                const label = e.target.parentElement.textContent.trim();
+                showNetflixToast(`Audio: ${label}`);
+            });
+        });
+
+        document.querySelectorAll("input[name='sub-track']").forEach(radio => {
+            radio.addEventListener("change", (e) => {
+                const label = e.target.parentElement.textContent.trim();
+                showNetflixToast(`Subtitles: ${label}`);
+            });
+        });
+    }
+
+    if (btnPlayerSpeed) {
+        btnPlayerSpeed.addEventListener("click", () => {
+            currentSpeedIdx = (currentSpeedIdx + 1) % speedOptions.length;
+            const newSpeed = speedOptions[currentSpeedIdx];
+            btnPlayerSpeed.textContent = `⚡ ${newSpeed}x`;
+            const videoEl = document.querySelector("#media-player-container video");
+            if (videoEl) videoEl.playbackRate = newSpeed;
+            showNetflixToast(`Playback Speed: ${newSpeed}x`);
+        });
     }
 
     const btnToggleCinema = document.getElementById('btn-toggle-cinema-mode');
