@@ -12,6 +12,9 @@
 </head>
 <body>
 
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
     <!-- Authentic Netflix Audio Asset -->
     <audio id="ta-dum-audio" src="netflix-ta-dum.mp3" preload="auto"></audio>
 
@@ -107,6 +110,15 @@
                         <button class="thumb-btn" id="btn-thumb-down" title="Not for me">👎</button>
                     </div>
                     <div class="detail-genre-tags" id="detail-genre-tags"></div>
+                    
+                    <!-- Seasons & Episode Selector Section -->
+                    <div id="episodes-section" class="episodes-section">
+                        <div class="episodes-header">
+                            <h3 class="episodes-heading">Episodes</h3>
+                            <select id="season-select" class="season-select"></select>
+                        </div>
+                        <div id="episodes-container" class="episodes-container"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -234,6 +246,7 @@
                 <a href="#" class="nav-tab active" data-tab="all">All</a>
                 <a href="#" class="nav-tab" data-tab="movies">Movies</a>
                 <a href="#" class="nav-tab" data-tab="tv">TV Shows</a>
+                <a href="#" class="nav-tab" data-tab="kdrama">K-Dramas</a>
                 <a href="#" class="nav-tab" data-tab="anime">Anime</a>
                 <a href="#" class="nav-tab" data-tab="music">Music</a>
                 <a href="#" class="nav-tab" data-tab="mylist">My List</a>
@@ -291,6 +304,26 @@
                         </div>
                     </div>
                 </div>
+                <!-- Header Profile Switcher Dropdown -->
+                <div class="header-profile-wrapper">
+                    <button class="header-profile-btn" id="btn-header-profile" title="Switch Profile">
+                        <div class="header-avatar" id="header-profile-avatar">P</div>
+                        <span class="dropdown-caret">▼</span>
+                    </button>
+                    <div class="profile-dropdown-menu" id="header-profile-dropdown">
+                        <div class="profile-dropdown-header">Switch Profiles</div>
+                        <div class="profile-drop-item" data-switch-profile="Primary">
+                            <span class="avatar-dot bg-red">P</span> Primary
+                        </div>
+                        <div class="profile-drop-item" data-switch-profile="Guest">
+                            <span class="avatar-dot bg-blue">G</span> Guest
+                        </div>
+                        <div class="profile-drop-item" data-switch-profile="Kids">
+                            <span class="avatar-dot bg-yellow">K</span> Kids
+                        </div>
+                    </div>
+                </div>
+
                 <button id="btn-replay-nav" class="replay-nav-btn">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                         <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
@@ -338,24 +371,32 @@
         <!-- Showcase Dashboard (Revealed after selecting profile) -->
         <section id="showcase-dashboard" class="showcase-dashboard hidden">
             <!-- Hero Featured Showcase Banner -->
-            <div class="featured-hero">
-                <div class="hero-bg-image" style="background-image: url('assets/stranger_things.png');"></div>
+            <div class="featured-hero" id="featured-hero-banner">
+                <div class="hero-bg-image" id="hero-bg-image" style="background-image: url('assets/stranger_things.png');"></div>
                 <div class="hero-vignette"></div>
                 <div class="featured-hero-content">
-                    <span class="n-series-badge">🔥 #1 IN SHOWS TODAY</span>
-                    <h1 class="featured-title">STRANGER THINGS 5</h1>
-                    <p class="featured-desc">The final chapter begins. Mysterious forces take over Hawkins as Eleven and the group unite for their ultimate battle.</p>
+                    <span class="n-series-badge" id="hero-badge-tag">🔥 #1 IN SHOWS TODAY</span>
+                    <h1 class="featured-title" id="hero-title">STRANGER THINGS 5</h1>
+                    <p class="featured-desc" id="hero-desc">The final chapter begins. Mysterious forces take over Hawkins as Eleven and the group unite for their ultimate battle.</p>
                     <div class="featured-buttons">
-                        <button class="btn-hero-play media-trigger-btn" data-title="Stranger Things 5" data-badge="99% MATCH • 2026 • 4K ULTRA HD" data-desc="The final chapter begins. Mysterious forces take over Hawkins as Eleven and the group unite for their ultimate battle." data-match="99" data-year="2026" data-maturity="TV-MA" data-seasons="5 Seasons" data-genres="Sci-Fi,Horror,Drama,Thriller">
+                        <button class="btn-hero-play media-trigger-btn" id="btn-hero-play-main" data-title="Stranger Things 5">
                             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                                 <path d="M8 5v14l11-7z"/>
                             </svg>
                             Play
                         </button>
-                        <button class="btn-hero-info media-trigger-btn" data-title="Stranger Things 5" data-badge="99% MATCH • 2026 • 4K ULTRA HD" data-desc="The final chapter begins. Mysterious forces take over Hawkins as Eleven and the group unite for their ultimate battle." data-match="99" data-year="2026" data-maturity="TV-MA" data-seasons="5 Seasons" data-genres="Sci-Fi,Horror,Drama,Thriller">
+                        <button class="btn-hero-info media-trigger-btn" id="btn-hero-info-main" data-title="Stranger Things 5">
                             More Info
                         </button>
                     </div>
+                </div>
+                <!-- Hero Carousel Slide Indicators -->
+                <div class="hero-indicators" id="hero-indicators">
+                    <button class="hero-dot active" data-hero-index="0" title="Stranger Things 5"></button>
+                    <button class="hero-dot" data-hero-index="1" title="Squid Game 2"></button>
+                    <button class="hero-dot" data-hero-index="2" title="Dune: Part Two"></button>
+                    <button class="hero-dot" data-hero-index="3" title="Arcane Season 2"></button>
+                    <button class="hero-dot" data-hero-index="4" title="Oppenheimer"></button>
                 </div>
             </div>
 
@@ -932,14 +973,35 @@
         <p id="media-player-desc" class="media-player-desc"></p>
       </div>
       <div class="media-player-actions">
+        <button id="btn-player-settings" class="btn-cinema-mode" title="Audio & Subtitles">💬 Audio / Subs</button>
+        <button id="btn-player-speed" class="btn-cinema-mode" title="Playback Speed">⚡ 1.0x</button>
         <button id="btn-toggle-cinema-mode" class="btn-cinema-mode" title="Toggle HD Cinema Embed / Trailer Mode">🎥 Cinema Mode</button>
         <label class="btn-load-file" title="Play any video file from your device (.mp4, .mkv, .webm)">
-          📁 Play Local Movie
+          📁 Local File
           <input type="file" id="input-local-video" accept="video/*" style="display: none;">
         </label>
-        <button id="btn-custom-url" class="btn-custom-url" title="Paste custom video URL or stream link">🔗 Paste Movie Link</button>
+        <button id="btn-custom-url" class="btn-custom-url" title="Paste custom video URL or stream link">🔗 Link</button>
         <button id="media-player-close" class="media-player-close" title="Close (Esc)">✕</button>
       </div>
+    </div>
+    <!-- Audio & Subtitles Settings Popup -->
+    <div id="player-settings-popup" class="player-settings-popup hidden">
+        <div class="settings-col">
+            <h4 class="settings-title">🔊 Audio Track</h4>
+            <label class="settings-opt"><input type="radio" name="audio-track" value="en" checked> English [Original] 5.1</label>
+            <label class="settings-opt"><input type="radio" name="audio-track" value="es"> Spanish (Dolby Digital)</label>
+            <label class="settings-opt"><input type="radio" name="audio-track" value="fr"> French</label>
+            <label class="settings-opt"><input type="radio" name="audio-track" value="ja"> Japanese (Original)</label>
+        </div>
+        <div class="settings-col">
+            <h4 class="settings-title">💬 Subtitles</h4>
+            <label class="settings-opt"><input type="radio" name="sub-track" value="off"> Off</label>
+            <label class="settings-opt"><input type="radio" name="sub-track" value="en" checked> English [CC]</label>
+            <label class="settings-opt"><input type="radio" name="sub-track" value="es"> Spanish</label>
+            <label class="settings-opt"><input type="radio" name="sub-track" value="fr"> French</label>
+            <label class="settings-opt"><input type="radio" name="sub-track" value="de"> German</label>
+            <label class="settings-opt"><input type="radio" name="sub-track" value="ja"> Japanese</label>
+        </div>
     </div>
     <div id="media-player-container" class="media-player-container"></div>
   </div>
